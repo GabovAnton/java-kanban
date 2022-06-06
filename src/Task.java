@@ -1,6 +1,3 @@
-import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -10,7 +7,7 @@ import java.util.UUID;
 public class Task {
     private String name;
     private String description;
-    private UUID uuid;
+    private UUID id;
     private Integer status;
 
     public String getName() {
@@ -29,12 +26,12 @@ public class Task {
         this.description = description;
     }
 
-    public UUID getUuid() {
-        return uuid;
+    public UUID getId() {
+        return id;
     }
 
-    public void setUuid() {
-        this.uuid = UUID.randomUUID();
+    public void setId() {
+        this.id = UUID.randomUUID();
     }
 
     public Integer getStatus() {
@@ -45,12 +42,27 @@ public class Task {
         this.status = status;
     }
 
-
+    public String getStatusName(Integer status) {
+        if (status != null) {
+            switch (status) {
+                case (1):
+                    return "NEW";
+                case (2):
+                    return "IN_PROGRESS";
+                case (3):
+                    return "DONE";
+                default:
+                    return "Error, while parsing statusName";
+            }
+        } else {
+            throw new NullPointerException("status cannot be null");
+        }
+    }
 
     @Override
     public int hashCode() {
         int hash = 17;
-        if (getUuid() != null) {
+        if (getId() != null) {
             hash = hash + getName().hashCode();
         }
         hash = hash * 31;
@@ -64,23 +76,15 @@ public class Task {
     @Override
     public boolean equals(Object obj) {
         SubTask otherTask = (SubTask) obj;
-        return Objects.equals(getUuid(), otherTask.getUuid()) &&
+        return Objects.equals(getId(), otherTask.getId()) &&
                 Objects.equals(getName(), otherTask.getName()) &&
                 Objects.equals(getDescription(), otherTask.getDescription()) &&
                 Objects.equals(getStatus(), otherTask.getStatus());
     }
 
-    public String getStatusName(Integer status) {
-        switch (status) {
-            case (1):
-                return "NEW";
-            case (2):
-                return "IN_PROGRESS";
-            case (3):
-                return "DONE";
-            default:
-                return "Error, while parsing statusName"; //handling error
-        }
+    @Override
+    public String toString() {
+        return "Task: " + getName() + ", " + (getDescription() != null ? getDescription() : "'empty description'") + ", ID: " + getId().toString() + ", " + getStatusName(getStatus());
     }
 
 }

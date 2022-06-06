@@ -18,5 +18,8 @@ public class EpicTask extends Task {
         }
     }
 
-
+    @Override
+    public String toString() {
+        return "EpicTask: " +getName() + ", " + (getDescription() != null ? getDescription():"'empty description'") + ", ID: " + getId().toString() + ", " + getStatusName(getStatus()) + ",  Subtasks: " + getSubTasks(); // просто возвращаем поля класса
+    }
 }

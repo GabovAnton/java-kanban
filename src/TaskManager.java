@@ -7,74 +7,92 @@ import java.util.UUID;
  * @author A.Gabov
  */
 public class TaskManager {
-    HashMap<UUID, Task> taskHashMap = new HashMap<>();
+
+    private HashMap<UUID, Task> tasks = new HashMap<>();
+
+    public static void updateEpicStatus(EpicTask task) {
+        boolean isAllSubTaskIsNewTask = task.getSubTasks().stream().allMatch(subTask -> subTask.getStatus() == 1);
+        boolean isAllSubTaskSsDoneTask = task.getSubTasks().stream().allMatch(subTask -> subTask.getStatus() == 3);
+
+        if (isAllSubTaskIsNewTask) {
+            task.setStatus(1);
+        } else if (isAllSubTaskSsDoneTask) {
+            task.setStatus(3);
+        } else {
+            task.setStatus(2);
+        }
+        task.getSubTasks().forEach(subTask -> {
+            subTask.setId();
+            subTask.setEpicId(task.getId());
+        });
+    }
 
     public ArrayList<Task> getTaskList() {
-        return new ArrayList<>(taskHashMap.values());
+        return new ArrayList<>(tasks.values());
     }
 
     public void deleteAllTasks() {
-        taskHashMap.clear();
+        tasks.clear();
     }
 
     public Task getTask(UUID uid) {
-        if (taskHashMap.containsKey(uid)) {
-            return taskHashMap.get(uid);
-        } else {
-            throw new IllegalArgumentException("Provided element 'task UUID' " + uid + "  not found");
-        }
-    }
-
-    public void createNewEpicTask(EpicTask task) {
-
-        if (task != null) {
-            task.setUuid();
-            if (task.getSubTasks().isEmpty()) { //New Epic Task with empty subtasks
-                task.setStatus(1);
-                taskHashMap.put(task.getUuid(), task);
-            } else {  //drill down to set uuid for each possible task
-                boolean isAllSubTaskIsNewTask = task.getSubTasks().stream().allMatch(subTask -> subTask.getStatus() == 1);
-                boolean isAllSubTaskSsDoneTask = task.getSubTasks().stream().allMatch(subTask -> subTask.getStatus() == 3);
-
-                if (isAllSubTaskIsNewTask) {
-                    task.setStatus(1);
-                } else if (isAllSubTaskSsDoneTask) {
-                    task.setStatus(3);
-                } else {
-                    task.setStatus(2);
-                }
-                task.getSubTasks().forEach(subTask -> {
-                    subTask.setUuid();
-                    subTask.setEpicTaskUUID(task.getUuid());
-                });
-
-            }
-        } else {
-            throw new NullPointerException("Task object cannot be null");
-        }
-    }
-
-    public void createNewSubTask(SubTask task) {
-        if (task.getEpicTaskUUID() != null) {//we should get parent ID to be able to add SubTask
-            if (taskHashMap.containsKey(task.getEpicTaskUUID())) {
-                ((EpicTask) taskHashMap.get(task.getEpicTaskUUID())).addSubTasks(task);
+        if (uid != null) {
+            if (tasks.containsKey(uid)) {
+                return tasks.get(uid);
             } else {
-                throw new IllegalArgumentException("Provided element 'Epic task UUID' " + task.getEpicTaskUUID() + "  not found");
+                throw new IllegalArgumentException("Provided element 'task UUID' " + uid + "  not found");
             }
+        } else {
+            throw new NullPointerException("task UUID cannot be null");
+
+        }
+    }
+
+    public UUID createEpicTask(EpicTask task) {
+
+        if (task != null) {
+            task.setId();
+            if (task.getSubTasks().isEmpty()) {
+                task.setStatus(1);
+                tasks.put(task.getId(), task);
+                System.out.println(tasks.size());
+
+            } else {
+                task.getSubTasks().forEach(subtask -> subtask.setEpicId(task.getId()));
+                tasks.put(task.getId(), task);
+                updateEpicStatus(task);
+            }
+            return task.getId();
+        } else {
+            throw new NullPointerException("Task object cannot be null");
+        }
+    }
+
+    public UUID createSubTask(SubTask task) {
+        //we should get parent ID to be able to add SubTask
+        if (task.getEpicId() != null) {
+            if (tasks.containsKey(task.getEpicId())) {
+                ((EpicTask) tasks.get(task.getEpicId())).addSubTasks(task);
+            } else {
+                throw new IllegalArgumentException("Provided element 'Epic task UUID' " + task.getEpicId() + "  not found");
+            }
+            return task.getId();
         } else {
             throw new NullPointerException("Task object cannot be null");
         }
 
     }
 
-    public void createNewTask(Task task) { //We can accept any task with any subTask, Also, we handle all UUID
+    public UUID createTask(Task task) {
+        //We can accept any task with any subTask, Also, we handle all UUID
         if (task != null) {
-            task.setUuid();
-            if (!taskHashMap.containsKey(task.getUuid())) {
-                taskHashMap.put(task.getUuid(), task);
+            task.setId();
+            if (!tasks.containsKey(task.getId())) {
+                tasks.put(task.getId(), task);
             } else {
                 updateTask(task);
             }
+            return task.getId();
         } else {
             throw new NullPointerException("Task object cannot be null");
         }
@@ -82,8 +100,8 @@ public class TaskManager {
 
     public void updateEpicTask(EpicTask task) {
         if (task != null) {
-            if (taskHashMap.containsKey(task.getUuid())) {
-                EpicTask oldTask = (EpicTask) taskHashMap.get(task);
+            if (tasks.containsKey(task.getId())) {
+                EpicTask oldTask = (EpicTask) tasks.get(task);
                 oldTask.setName(task.getName());
                 oldTask.setDescription(task.getDescription());
                 oldTask.setStatus(task.getStatus());
@@ -96,9 +114,9 @@ public class TaskManager {
                 } else if (oldTask.getSubTasks() == null && task.getSubTasks() != null) {
                     task.getSubTasks().forEach(subTask -> task.addSubTasks(subTask));
                 }
-
+                 updateEpicStatus(task);
             } else {
-                throw new IllegalArgumentException("Provided element 'task UUID' " + task.getUuid() + "  not found");
+                throw new IllegalArgumentException("Provided element 'task UUID' " + task.getId() + "  not found");
             }
         } else {
             throw new NullPointerException("Task object cannot be null");
@@ -107,15 +125,15 @@ public class TaskManager {
 
     public void updateSubTask(SubTask task) {
         if (task != null) {
-            if (taskHashMap.containsKey(task.getUuid())) {
-                SubTask oldTask = (SubTask) taskHashMap.get(task);
+            if (tasks.containsKey(task.getId())) {
+                SubTask oldTask = (SubTask) tasks.get(task);
                 oldTask.setName(task.getName());
                 oldTask.setDescription(task.getDescription());
                 oldTask.setStatus(task.getStatus());
-                oldTask.setEpicTaskUUID(task.getEpicTaskUUID());
-
+                oldTask.setEpicId(task.getEpicId());
+                updateEpicStatus((EpicTask) tasks.get(oldTask.getEpicId()));
             } else {
-                throw new IllegalArgumentException("Provided element 'SubTask UUID' " + task.getUuid() + "  not found");
+                throw new IllegalArgumentException("Provided element 'SubTask id' " + task.getId() + "  not found");
             }
         } else {
             throw new NullPointerException("Task object cannot be null");
@@ -124,26 +142,26 @@ public class TaskManager {
 
     public void updateTask(Task task) {
         if (task != null) {
-            if (taskHashMap.containsKey(task.getUuid())) {
-                Task oldTask = taskHashMap.get(task);
+            if (tasks.containsKey(task.getId())) {
+                Task oldTask = tasks.get(task);
                 oldTask.setName(task.getName());
                 oldTask.setDescription(task.getDescription());
                 oldTask.setStatus(task.getStatus());
             } else {
-                throw new IllegalArgumentException("Provided element 'task UUID' " + task.getUuid() + "  not found");
+                throw new IllegalArgumentException("Provided element 'task UUID' " + task.getId() + "  not found");
             }
         } else {
             throw new NullPointerException("Task object cannot be null");
         }
     }
 
-    public boolean deleteTask(UUID uid) {
-        if (uid != null) {
-            if (taskHashMap.containsKey(uid)) {
-                taskHashMap.remove(uid);
+    public boolean deleteTask(UUID id) {
+        if (id != null) {
+            if (tasks.containsKey(id)) {
+                tasks.remove(id);
                 return true;
             } else {
-                throw new IllegalArgumentException("Provided element 'UUID' " + uid.toString() + "  not found");
+                throw new IllegalArgumentException("Provided element 'UUID' " + id.toString() + "  not found");
             }
         } else {
             throw new NullPointerException("UUID object cannot be null");
