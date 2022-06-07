@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -10,16 +9,16 @@ public class TaskManager {
 
     private HashMap<UUID, Task> tasks = new HashMap<>();
 
-    public static void updateEpicStatus(EpicTask task) {
-        boolean isAllSubTaskIsNewTask = task.getSubTasks().stream().allMatch(subTask -> subTask.getStatus() == 1);
-        boolean isAllSubTaskSsDoneTask = task.getSubTasks().stream().allMatch(subTask -> subTask.getStatus() == 3);
+    public void updateEpicStatus(EpicTask task) {
+        boolean isAllSubTaskIsNewTask = task.getSubTasks().stream().allMatch(subTask -> subTask.getStatus() == "NEW");
+        boolean isAllSubTaskSsDoneTask = task.getSubTasks().stream().allMatch(subTask -> subTask.getStatus() == "DONE");
 
         if (isAllSubTaskIsNewTask) {
-            task.setStatus(1);
+            task.setStatus("NEW");
         } else if (isAllSubTaskSsDoneTask) {
-            task.setStatus(3);
+            task.setStatus("DONE");
         } else {
-            task.setStatus(2);
+            task.setStatus("IN_PROGRESS");
         }
         task.getSubTasks().forEach(subTask -> {
             subTask.setId();
@@ -53,7 +52,7 @@ public class TaskManager {
         if (task != null) {
             task.setId();
             if (task.getSubTasks().isEmpty()) {
-                task.setStatus(1);
+                task.setStatus("NEW");
                 tasks.put(task.getId(), task);
                 System.out.println(tasks.size());
 
@@ -74,7 +73,8 @@ public class TaskManager {
             if (tasks.containsKey(task.getEpicId())) {
                 ((EpicTask) tasks.get(task.getEpicId())).addSubTasks(task);
             } else {
-                throw new IllegalArgumentException("Provided element 'Epic task UUID' " + task.getEpicId() + "  not found");
+                throw new IllegalArgumentException("Provided element 'Epic task id' " + task.getEpicId() +
+                        "  not found");
             }
             return task.getId();
         } else {
@@ -90,7 +90,8 @@ public class TaskManager {
             if (!tasks.containsKey(task.getId())) {
                 tasks.put(task.getId(), task);
             } else {
-                updateTask(task);
+                throw new IllegalArgumentException("Provided object 'task' " + task.getId() + "  " +
+                        "has been already stored in manager with same id");
             }
             return task.getId();
         } else {
@@ -101,7 +102,7 @@ public class TaskManager {
     public void updateEpicTask(EpicTask task) {
         if (task != null) {
             if (tasks.containsKey(task.getId())) {
-                EpicTask oldTask = (EpicTask) tasks.get(task);
+                EpicTask oldTask = (EpicTask) tasks.get(task.getId());
                 oldTask.setName(task.getName());
                 oldTask.setDescription(task.getDescription());
                 oldTask.setStatus(task.getStatus());
@@ -125,15 +126,23 @@ public class TaskManager {
 
     public void updateSubTask(SubTask task) {
         if (task != null) {
-            if (tasks.containsKey(task.getId())) {
-                SubTask oldTask = (SubTask) tasks.get(task);
-                oldTask.setName(task.getName());
-                oldTask.setDescription(task.getDescription());
-                oldTask.setStatus(task.getStatus());
-                oldTask.setEpicId(task.getEpicId());
-                updateEpicStatus((EpicTask) tasks.get(oldTask.getEpicId()));
+            if (tasks.containsKey(task.getEpicId())) {
+                EpicTask epicTask = (EpicTask) tasks.get(task.getEpicId());
+                if (epicTask.getSubTasks().stream().filter(x->x.getId() == task.getId()).findFirst().isPresent()) {
+                    SubTask oldTask = epicTask.getSubTasks().stream().filter(x->x.getId() == task.getId()).findFirst().
+                            get();
+                    oldTask.setName(task.getName());
+                    oldTask.setDescription(task.getDescription());
+                    oldTask.setStatus(task.getStatus());
+                    oldTask.setEpicId(task.getEpicId());
+                    updateEpicStatus((EpicTask) tasks.get(oldTask.getEpicId()));
+                } else {
+                    throw new IllegalArgumentException("Provided element 'SubTask id' " + task.getId() + "  not found");
+                }
+
             } else {
-                throw new IllegalArgumentException("Provided element 'SubTask id' " + task.getId() + "  not found");
+                throw new IllegalArgumentException("Provided element 'SubTask' contains epicID witch doesn't belongs " +
+                        "to tasks Array " + task.getId() + "  not found");
             }
         } else {
             throw new NullPointerException("Task object cannot be null");
@@ -143,7 +152,7 @@ public class TaskManager {
     public void updateTask(Task task) {
         if (task != null) {
             if (tasks.containsKey(task.getId())) {
-                Task oldTask = tasks.get(task);
+                Task oldTask = tasks.get(task.getId());
                 oldTask.setName(task.getName());
                 oldTask.setDescription(task.getDescription());
                 oldTask.setStatus(task.getStatus());
@@ -169,7 +178,7 @@ public class TaskManager {
         }
     }
 
-    public List<Task> getAllSubTasksByEpic(EpicTask task) {
+    public ArrayList<SubTask> getAllSubTasksByEpic(EpicTask task) {
 
         if (task != null) {
             return new ArrayList<>(task.getSubTasks());

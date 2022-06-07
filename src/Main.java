@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 
@@ -5,91 +6,107 @@ public class Main {
 
     public static void main(String[] args) {
         TaskManager taskManager = new TaskManager();
-        Task task1 = new Task();
-        task1.setStatus(1);
-        task1.setName("Посмотреть сериал");
 
-        Task task2 = new Task();
-        task2.setStatus(2);
-        task2.setName("Послушать музыку");
-        UUID TaskID1 = taskManager.createTask(task1);
-        UUID TaskID2 = taskManager.createTask(task2);
+        Task task1 = new Task("Посмотреть сериал", null, "NEW");
+
+        Task task2 = new Task("Послушать музыку", null, "IN_PROGRESS");
+
+        UUID taskid1 = taskManager.createTask(task1);
+
+        UUID taskid2 = taskManager.createTask(task2);
 
 
-        EpicTask epicTask1 = new EpicTask();
-        epicTask1.setName("Выучить уроки");
-        epicTask1.setDescription("Выполнить все домашние задания");
-
-        SubTask subTask1 = new SubTask();
-        subTask1.setName("Выучить стихотворение Лермонтова");
-        subTask1.setDescription("Тучи");
-        subTask1.setStatus(1);
-
-        SubTask subTask2 = new SubTask();
-        subTask2.setName("Выучить стихотворение Есенина ");
-        subTask2.setDescription("Письмо к женщине");
-        subTask2.setStatus(1);
-
-        epicTask1.addSubTasks(subTask1);
-        epicTask1.addSubTasks(subTask2);
+        EpicTask epicTask1 = new EpicTask("Выучить уроки", "Выполнить все домашние задания");
 
         //test creating task and return ID
-        UUID EpicTaskID1 = taskManager.createEpicTask(epicTask1);
+        UUID epictaskid1 = taskManager.createEpicTask(epicTask1);
 
-        EpicTask epicTask2 = new EpicTask();
-        epicTask2.setName("Купить продукты");
+        SubTask subTask1 = new SubTask("Выучить стихотворение Лермонтова", "Тучи", "NEW",
+                epictaskid1);
 
-        SubTask subTask3 = new SubTask();
-        subTask3.setName("Хлеб");
-        subTask3.setDescription("Белый с отрубями");
-        subTask3.setStatus(1);
+        SubTask subTask2 = new SubTask("Выучить стихотворение Есенина", "Письмо к женщине", "NEW",
+                epictaskid1);
 
-        epicTask2.addSubTasks(subTask3);
+        taskManager.createSubTask(subTask1);
+        taskManager.createSubTask(subTask2);
+
+
+        EpicTask epicTask2 = new EpicTask("Купить продукты", null);
+
 
         //test creating task and return ID
-        UUID EpicTaskID2 = taskManager.createEpicTask(epicTask2);
+        UUID epictaskid2 = taskManager.createEpicTask(epicTask2);
+        SubTask subTask3 = new SubTask("Хлеб", "Белый с отрубями", "NEW", epictaskid2);
+        taskManager.createSubTask(subTask3);
+
+
         //Print all tasks
-        taskManager.getTaskList().forEach(x -> System.out.println(x));
+        taskManager.getTaskList().forEach(System.out::println);
 
         System.out.println("Update subtask statuses...");
         //Test "get" method and randomly update each subTask status in EpicTask1 to test "update" method
-        EpicTask epicTask1Test = (EpicTask) taskManager.getTask(EpicTaskID1);
-        taskManager.getAllSubTasksByEpic(epicTask1Test).forEach(x -> {
-            x.setStatus(getRandomNumberUsingNextInt(1, 4));
+        EpicTask epicTask1Test = (EpicTask) taskManager.getTask(epictaskid1);
+        ArrayList<SubTask> subTasksToUpdate1 = taskManager.getAllSubTasksByEpic(epicTask1Test);
+
+        subTasksToUpdate1.forEach(x -> {
+
+            x.setStatus(getRandomStatusUsingNextInt(1, 4));
+            taskManager.updateSubTask(x);
         });
-        TaskManager.updateEpicStatus(epicTask1Test);
+        taskManager.updateEpicStatus(epicTask1Test);
 
         //Test "get" method and randomly update each subTask status in EpicTask2 to test "update" method
-        EpicTask epicTask2Test = (EpicTask) taskManager.getTask(EpicTaskID2);
-        taskManager.getAllSubTasksByEpic(epicTask2).forEach(x -> {
-            x.setStatus(getRandomNumberUsingNextInt(1, 4));
-        });
-        TaskManager.updateEpicStatus(epicTask2Test);
+        EpicTask epicTask2Test = (EpicTask) taskManager.getTask(epictaskid2);
 
-        taskManager.getTask(TaskID1).setStatus(3);
-        taskManager.getTask(TaskID2).setStatus(1);
+        ArrayList<SubTask> subTasksToUpdate2 = taskManager.getAllSubTasksByEpic(epicTask2Test);
+        subTasksToUpdate2.forEach(x -> {
+            x.setStatus(getRandomStatusUsingNextInt(1, 4));
+            taskManager.updateSubTask(x);
+        });
+        taskManager.updateEpicStatus(epicTask2Test);
+
+        Task taskToUpdate1 = taskManager.getTask(taskid1);
+        taskToUpdate1.setStatus("DONE");
+        taskManager.updateTask(taskToUpdate1);
+
+        Task taskToUpdate2 = taskManager.getTask(taskid2);
+        taskToUpdate2.setStatus("NEW");
+        taskManager.updateTask(taskToUpdate2);
+
+        EpicTask epicTaskToUpdate = (EpicTask) taskManager.getTask(epictaskid1);
+        epicTaskToUpdate.setDescription("New description");
+        taskManager.updateEpicTask(epicTaskToUpdate);
+
 
         System.out.println("*****new statuses******");
 
 
-        taskManager.getTaskList().forEach(x -> {
-            System.out.println(x.toString());
-        });
+        taskManager.getTaskList().forEach(x -> System.out.println(x.toString()));
 
 
-        taskManager.deleteTask(EpicTaskID1);
-        taskManager.deleteTask(TaskID1);
+        taskManager.deleteTask(epictaskid1);
+        taskManager.deleteTask(taskid1);
 
         System.out.println("*****after deleting******");
-        taskManager.getTaskList().forEach(x -> {
-            System.out.println(x.toString());
-        });
+        taskManager.getTaskList().forEach(x -> System.out.println(x.toString()));
+        System.out.println("*****delete all******");
+        taskManager.deleteAllTasks();
 
     }
 
-    public static int getRandomNumberUsingNextInt(int min, int max) {
+    public static String getRandomStatusUsingNextInt(int min, int max) {
         Random random = new Random();
-        return random.nextInt(max - min) + min;
+        int Status = random.nextInt(max - min) + min;
+        switch (Status) {
+            case (1):
+                return "NEW";
+            case (2):
+                return "IN_PROGRESS";
+            case (3):
+                return "DONE";
+            default:
+                return "Error, while parsing statusName";
+        }
     }
 
 }

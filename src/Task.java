@@ -8,7 +8,21 @@ public class Task {
     private String name;
     private String description;
     private UUID id;
-    private Integer status;
+    private String status;
+
+    public Task(String name, String description) {
+        this.name = name;
+        this.description = description;
+        this.id = UUID.randomUUID();
+    }
+
+    public Task(String name, String description, String status) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.id = UUID.randomUUID();
+    }
+
 
     public String getName() {
         return name;
@@ -34,29 +48,12 @@ public class Task {
         this.id = UUID.randomUUID();
     }
 
-    public Integer getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getStatusName(Integer status) {
-        if (status != null) {
-            switch (status) {
-                case (1):
-                    return "NEW";
-                case (2):
-                    return "IN_PROGRESS";
-                case (3):
-                    return "DONE";
-                default:
-                    return "Error, while parsing statusName";
-            }
-        } else {
-            throw new NullPointerException("status cannot be null");
-        }
     }
 
     @Override
@@ -84,7 +81,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task: " + getName() + ", " + (getDescription() != null ? getDescription() : "'empty description'") + ", ID: " + getId().toString() + ", " + getStatusName(getStatus());
+        return "Task: " + getName() + ", " + (getDescription() != null ? getDescription() : "'empty description'") + ", ID: " + getId().toString() + ", " + getStatus();
     }
 
 }

@@ -6,7 +6,14 @@ import java.util.List;
  */
 public class EpicTask extends Task {
 
-    private List<SubTask> subTasks = new ArrayList<>();
+    private ArrayList<SubTask> subTasks = new ArrayList<>();
+
+    public EpicTask(String name, String description, String status) {
+        super(name, description, status);
+    }
+    public EpicTask(String name, String description) {
+        super(name, description);
+    }
 
     public List<SubTask> getSubTasks() {
         return subTasks;
@@ -20,6 +27,6 @@ public class EpicTask extends Task {
 
     @Override
     public String toString() {
-        return "EpicTask: " +getName() + ", " + (getDescription() != null ? getDescription():"'empty description'") + ", ID: " + getId().toString() + ", " + getStatusName(getStatus()) + ",  Subtasks: " + getSubTasks(); // просто возвращаем поля класса
+        return "EpicTask: " +getName() + ", " + (getDescription() != null ? getDescription():"'empty description'") + ", ID: " + getId().toString() + ", " + getStatus() + ",  Subtasks: " + getSubTasks(); // просто возвращаем поля класса
     }
 }
