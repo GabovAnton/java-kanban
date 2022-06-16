@@ -1,3 +1,7 @@
+package Tasks;
+
+import Tasks.Task;
+
 import java.util.UUID;
 
 /**
@@ -33,7 +37,7 @@ public class SubTask extends Task {
 
     @Override
     public String toString() {
-        return "{ " + getName() + ", " + (getDescription() != null ? getDescription():"'empty description'") + "," + getStatus() + "}";
+        return "        Subtask {" + getName() + ", " + (getDescription() != null ? getDescription():"'empty description'") + ", ID: " + getId() +  "," + getStatus() + "}";
     }
 
 }

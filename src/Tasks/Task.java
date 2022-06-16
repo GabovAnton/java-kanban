@@ -1,3 +1,5 @@
+package Tasks;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -81,7 +83,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task: " + getName() + ", " + (getDescription() != null ? getDescription() : "'empty description'") + ", ID: " + getId().toString() + ", " + getStatus();
+        return "    Tasks.Task: " + getName() + ", " + (getDescription() != null ? getDescription() : "'empty description'") + ", ID: " + getId().toString() + ", " + getStatus();
     }
 
 }

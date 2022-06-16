@@ -1,7 +1,7 @@
 # java-kanban
 ## Features
 
-- Add new Task
+- Add new Tasks.Task
 - Delete all task
 - Delete specific task
 - Update specific task
@@ -9,8 +9,5 @@
 - Get all subtasks by epic
 - get all tasks
 
-## UML Class Diagram
-
-![UML Class Diagram](http://agabov.synology.me/UML_CANBAN.png)
 
 Repository for homework project.
