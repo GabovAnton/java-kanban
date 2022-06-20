@@ -1,11 +1,12 @@
-package TaskManagers;
+package managers;
 
-import HistoryManager.HistoryManager;
-import Tasks.EpicTask;
-import Tasks.SubTask;
-import Tasks.Task;
+import tasks.EpicTask;
+import tasks.SubTask;
+import tasks.Task;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -34,7 +35,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     }
 
     @Override
-    public ArrayList<Task> getTaskList() {
+    public List<Task> getTaskList() {
         return new ArrayList<>(tasks.values());
     }
 
@@ -44,13 +45,13 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     }
 
     @Override
-    public Task getTask(UUID uid) {
+    public Task getTask(UUID id) {
 
-        if (uid != null) {
-            if (tasks.containsKey(uid)) {
-                return tasks.get(uid);
+        if (id != null) {
+            if (tasks.containsKey(id)) {
+                return tasks.get(id);
             } else {
-                throw new IllegalArgumentException("Provided element 'task UUID' " + uid + "  not found");
+                throw new IllegalArgumentException("Provided element 'task UUID' " + id + "  not found");
             }
         } else {
             throw new NullPointerException("task UUID cannot be null");
@@ -59,35 +60,33 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     }
 
     @Override
-    public Task getStandaloneTask(UUID uid) {
-        if (!(tasks.get(uid) instanceof  SubTask) && !(tasks.get(uid) instanceof  EpicTask)) {
-            updateHistory(tasks.get(uid));
-            return getTask(uid);
+    public Task getStandaloneTask(UUID id) {
+        if (!(tasks.get(id) instanceof SubTask) && !(tasks.get(id) instanceof EpicTask)) {
+            historyManager.updateHistory(tasks.get(id));
+            return getTask(id);
         } else {
-            throw new IllegalArgumentException("Provided element UID is not a StandaloneTask " + uid.toString() );
+            throw new IllegalArgumentException("Provided element UID is not a StandaloneTask " + id.toString());
         }
     }
 
     @Override
-    public SubTask getSubtask(UUID uid) {
-        if (tasks.get(uid) instanceof  SubTask) {
-            updateHistory(tasks.get(uid));
-            return  (SubTask) getTask(uid);
-        }
-        else {
-            throw new IllegalArgumentException("Provided element UID is not a SubTask " + uid.toString() );
+    public SubTask getSubtask(UUID id) {
+        if (tasks.get(id) instanceof SubTask) {
+            historyManager.updateHistory(tasks.get(id));
+            return (SubTask) getTask(id);
+        } else {
+            throw new IllegalArgumentException("Provided element UID is not a SubTask " + id.toString());
 
         }
     }
 
     @Override
-    public EpicTask getEpic(UUID uid) {
-        if (tasks.get(uid) instanceof  EpicTask) {
-            updateHistory(tasks.get(uid));
-            return (EpicTask) getTask(uid);
-        }
-        else {
-            throw new IllegalArgumentException("Provided element UID is not an Epic " + uid.toString() );
+    public EpicTask getEpic(UUID id) {
+        if (tasks.get(id) instanceof EpicTask) {
+            historyManager.updateHistory(tasks.get(id));
+            return (EpicTask) getTask(id);
+        } else {
+            throw new IllegalArgumentException("Provided element UID is not an Epic " + id.toString());
 
         }
     }
@@ -219,7 +218,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
                 tasks.remove(id);
                 return true;
             } else {
-                throw new IllegalArgumentException("Provided element 'UUID' " + id.toString() + "  not found");
+                throw new IllegalArgumentException("Provided element 'UUID' " + id + "  not found");
             }
         } else {
             throw new NullPointerException("UUID object cannot be null");
@@ -234,14 +233,14 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
                 System.out.println(task);
                 ((EpicTask) task).getSubTasks().forEach(subTaskId ->
                         System.out.println(getTask(subTaskId).toString()));
-            } else if (!(task instanceof SubTask) && !(task instanceof EpicTask)) {
+            } else if (!(task instanceof SubTask)) {
                 System.out.println(task);
             }
         });
     }
 
     @Override
-    public ArrayList<SubTask> getAllSubTasksByEpic(EpicTask epic) {
+    public List<SubTask> getAllSubTasksByEpic(EpicTask epic) {
 
         if (epic != null) {
             ArrayList<SubTask> subtasks = new ArrayList<>();
@@ -253,13 +252,6 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
             throw new NullPointerException("Tasks.Task object cannot be null");
         }
 
-    }
-
-    private <T extends Task> void updateHistory(T task) {
-        if (historyManager.getHistory().size() > 9) {
-            historyManager.getHistory().remove(0);
-        }
-        historyManager.getHistory().add(task);
     }
 
 

@@ -1,4 +1,4 @@
-package Tasks;
+package tasks;
 
 /**
  * @author A.Gabov

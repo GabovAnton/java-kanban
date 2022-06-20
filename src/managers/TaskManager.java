@@ -1,10 +1,10 @@
-package TaskManagers;
+package managers;
 
-import Tasks.EpicTask;
-import Tasks.SubTask;
-import Tasks.Task;
+import tasks.EpicTask;
+import tasks.SubTask;
+import tasks.Task;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -14,7 +14,7 @@ public interface TaskManager {
 
     void updateEpicStatus(EpicTask task);
 
-    ArrayList<Task> getTaskList();
+    List<Task> getTaskList();
 
     void deleteAllTasks();
 
@@ -33,10 +33,15 @@ public interface TaskManager {
     void updateTask(Task task);
 
     boolean deleteTask(UUID id);
+
     void printAllTasks();
-    ArrayList<SubTask> getAllSubTasksByEpic(EpicTask task);
-    public Task getStandaloneTask(UUID uid);
-    public SubTask getSubtask(UUID uid);
-    public EpicTask getEpic(UUID uid);
+
+    List<SubTask> getAllSubTasksByEpic(EpicTask task);
+
+    Task getStandaloneTask(UUID id);
+
+    SubTask getSubtask(UUID id);
+
+    EpicTask getEpic(UUID id);
 
 }

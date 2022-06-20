@@ -1,7 +1,7 @@
 # java-kanban
 ## Features
 
-- Add new Tasks.Task
+- Add new tasks.Task
 - Delete all task
 - Delete specific task
 - Update specific task

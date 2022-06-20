@@ -1,11 +1,11 @@
-import TaskManagers.Managers;
-import TaskManagers.TaskManager;
-import Tasks.EpicTask;
-import Tasks.SubTask;
-import Tasks.Task;
-import Tasks.TaskStatuses;
+import managers.Managers;
+import managers.TaskManager;
+import tasks.EpicTask;
+import tasks.SubTask;
+import tasks.Task;
+import tasks.TaskStatuses;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -54,7 +54,7 @@ public class Main {
         System.out.println("Update subtask statuses...");
         //Test "get" method and randomly update each subTask status in EpicTask1 to test "update" method
         EpicTask epicTask1Test = (EpicTask) taskManager.getTask(epictaskid1);
-        ArrayList<SubTask> subTasksToUpdate1 = taskManager.getAllSubTasksByEpic(epicTask1Test);
+        List<SubTask> subTasksToUpdate1 = taskManager.getAllSubTasksByEpic(epicTask1Test);
 
         subTasksToUpdate1.forEach(subTaskId -> {
             SubTask subTask = (SubTask) taskManager.getTask(subTaskId.getId());
@@ -68,7 +68,7 @@ public class Main {
         //Test "get" method and randomly update each subTask status in EpicTask2 to test "update" method
         EpicTask epicTask2Test = (EpicTask) taskManager.getTask(epictaskid2);
 
-        ArrayList<SubTask> subTasksToUpdate2 = taskManager.getAllSubTasksByEpic(epicTask2Test);
+        List<SubTask> subTasksToUpdate2 = taskManager.getAllSubTasksByEpic(epicTask2Test);
         subTasksToUpdate2.forEach(subTaskId -> {
             SubTask subTask = (SubTask) taskManager.getTask(subTaskId.getId());
             System.out.print("Обновляю subTaskId: " + subTaskId.getId() + "  [" + subTask.getStatus() + "  ->  "); //
