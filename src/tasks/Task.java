@@ -74,7 +74,7 @@ public class Task {
 
     @Override
     public boolean equals(Object obj) {
-        SubTask otherTask = (SubTask) obj;
+        Task otherTask = (Task) obj;
         return Objects.equals(getId(), otherTask.getId()) &&
                 Objects.equals(getName(), otherTask.getName()) &&
                 Objects.equals(getDescription(), otherTask.getDescription()) &&

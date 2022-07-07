@@ -2,14 +2,16 @@ package managers;
 
 import tasks.Task;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * @author A.Gabov
  */
 public interface HistoryManager {
 
-    LinkedList<Task> getHistory();
+    ArrayList<Task> getHistory();
+    <T extends Task> void add(T task);
 
-    <T extends Task> void updateHistory(T task);
+    void deleteTaskFromHistory(UUID taskid1);
 }

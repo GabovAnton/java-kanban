@@ -29,14 +29,20 @@ public class Main {
         //test creating task and return ID
         UUID epictaskid1 = taskManager.createEpicTask(epicTask1);
 
-        SubTask subTask1 = new SubTask("Выучить стихотворение Лермонтова", "Тучи", TaskStatuses.NEW.toString(),
+        SubTask subTask1 = new SubTask("Выучить стихотворение Лермонтова", "Тучи",
+                TaskStatuses.NEW.toString(),
                 epictaskid1);
 
-        SubTask subTask2 = new SubTask("Выучить стихотворение Есенина", "Письмо к женщине", TaskStatuses.NEW.toString(),
+        SubTask subTask2 = new SubTask("Выучить стихотворение Есенина", "Письмо к женщине",
+                TaskStatuses.NEW.toString(),
+                epictaskid1);
+
+        SubTask subTask3 = new SubTask("Купить йогурт", "в Ашане", TaskStatuses.NEW.toString(),
                 epictaskid1);
 
         taskManager.createSubTask(subTask1);
         taskManager.createSubTask(subTask2);
+        taskManager.createSubTask(subTask3);
 
 
         EpicTask epicTask2 = new EpicTask("Купить продукты", null);
@@ -44,16 +50,54 @@ public class Main {
 
         //test creating task and return ID
         UUID epictaskid2 = taskManager.createEpicTask(epicTask2);
-        SubTask subTask3 = new SubTask("Хлеб", "Белый с отрубями", TaskStatuses.NEW.toString(), epictaskid2);
-        taskManager.createSubTask(subTask3);
 
 
         //Print all tasks
         taskManager.printAllTasks();
 
-        System.out.println("Update subtask statuses...");
-        //Test "get" method and randomly update each subTask status in EpicTask1 to test "update" method
-        EpicTask epicTask1Test = (EpicTask) taskManager.getTask(epictaskid1);
+        System.out.println("запрашиваем созданные задачи несколько раз в разном порядке;");
+        //Test "get" method
+        System.out.println("*****Печатаем историю до каких-либо просмотров******");
+        Managers.getDefaultHistory().getHistory().forEach(System.out::println);
+
+        taskManager.getStandaloneTask(taskid1);
+        System.out.println("*****Печатаем историю после просмотра 1 задачи******");
+
+        taskManager.getEpic(epictaskid1);
+        System.out.println("*****Печатаем историю после просмотра 1 Эпика******");
+        Managers.getDefaultHistory().getHistory().forEach(System.out::println);
+
+        taskManager.getEpic(epictaskid2);
+        System.out.println("*****Печатаем историю после просмотра 2 Эпика******");
+        Managers.getDefaultHistory().getHistory().forEach(System.out::println);
+
+        for (int i = 0; i < 10; i++) {
+            taskManager.getEpic(epictaskid2);
+        }
+
+        taskManager.getEpic(epictaskid1);
+        taskManager.getStandaloneTask(taskid2);
+
+        System.out.println("*****Печатаем историю после нескольких  просмотров Эпиков и задач******");
+        Managers.getDefaultHistory().getHistory().forEach(System.out::println);
+
+        taskManager.deleteTask(taskid1);
+        System.out.println("*****Печатаем историю после удаления задачи 'Посмотреть сериал'******");
+        Managers.getDefaultHistory().getHistory().forEach(System.out::println);
+        System.out.println("№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№");
+
+        System.out.println("*****Печатаем  задачи ДО удаления эпика******");
+        taskManager.printAllTasks();
+
+        taskManager.deleteTask(epictaskid1);
+        System.out.println("*****Печатаем  задачи после удаления эпика 'Выучить уроки'******");
+
+        taskManager.printAllTasks();
+
+    }
+
+    private static void updateRandomSubtasks(TaskManager taskManager, UUID epictaskid) {
+        EpicTask epicTask1Test = (EpicTask) taskManager.getTask(epictaskid);
         List<SubTask> subTasksToUpdate1 = taskManager.getAllSubTasksByEpic(epicTask1Test);
 
         subTasksToUpdate1.forEach(subTaskId -> {
@@ -64,62 +108,6 @@ public class Main {
             taskManager.updateSubTask(subTask);
         });
         taskManager.updateEpicStatus(epicTask1Test);
-
-        //Test "get" method and randomly update each subTask status in EpicTask2 to test "update" method
-        EpicTask epicTask2Test = (EpicTask) taskManager.getTask(epictaskid2);
-
-        List<SubTask> subTasksToUpdate2 = taskManager.getAllSubTasksByEpic(epicTask2Test);
-        subTasksToUpdate2.forEach(subTaskId -> {
-            SubTask subTask = (SubTask) taskManager.getTask(subTaskId.getId());
-            System.out.print("Обновляю subTaskId: " + subTaskId.getId() + "  [" + subTask.getStatus() + "  ->  "); //
-            subTask.setStatus(getRandomStatusUsingNextInt(1, 4));
-            System.out.println(subTask.getStatus() + "]");
-            taskManager.updateSubTask(subTask);
-        });
-        taskManager.updateEpicStatus(epicTask2Test);
-
-        Task taskToUpdate1 = taskManager.getTask(taskid1);
-        taskToUpdate1.setStatus(TaskStatuses.DONE.toString());
-        taskManager.updateTask(taskToUpdate1);
-
-        Task taskToUpdate2 = taskManager.getTask(taskid2);
-        taskToUpdate2.setStatus(TaskStatuses.NEW.toString());
-        taskManager.updateTask(taskToUpdate2);
-
-        EpicTask epicTaskToUpdate = (EpicTask) taskManager.getTask(epictaskid1);
-        epicTaskToUpdate.setDescription("New description");
-        taskManager.updateEpicTask(epicTaskToUpdate);
-
-        System.out.println("*****new statuses******");
-
-        taskManager.printAllTasks();
-
-
-        taskManager.deleteTask(epictaskid1);
-        taskManager.deleteTask(taskid1);
-
-        //test get query's for History
-        for (int i = 0; i < 5; i++) {
-            taskManager.getTaskList().forEach(task ->{
-                if (task instanceof EpicTask) {
-                    taskManager.getEpic(task.getId());
-                } else if (task instanceof  SubTask) {
-                    taskManager.getSubtask(task.getId());
-                } else {
-                    taskManager.getStandaloneTask(task.getId());
-                }
-            });
-        }
-
-        System.out.println("*****after deleting******");
-        taskManager.printAllTasks();
-        System.out.println("*****delete all******");
-        taskManager.deleteAllTasks();
-        taskManager.printAllTasks();
-
-        System.out.println("*****print history******");
-
-        Managers.getDefaultHistory().getHistory().forEach(System.out::println);
     }
 
     public static String getRandomStatusUsingNextInt(int min, int max) {
