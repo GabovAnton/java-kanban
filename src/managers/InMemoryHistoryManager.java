@@ -2,7 +2,9 @@ package managers;
 
 import tasks.Task;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * @author A.Gabov
@@ -22,33 +24,27 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public  void deleteTaskFromHistory(UUID id) {
-        historyTasksList.removeNode(historyTasksList.getNodeById(id));
+    public void deleteTaskFromHistory(UUID id) {
+        historyTasksList.removeNode(id);
     }
-    public  class CustomLinkedList<T extends Task> {
+
+    public class CustomLinkedList<T extends Task> {
         public Node<T> head;
         public Node<T> last;
-       //private UUID id;
+
         private HashMap<UUID, Node<T>> nodesMap = new HashMap<>();
-
-        public Node<T> getNodeById(UUID id) {
-            return nodesMap.get(id);
-        }
-
-        public HashMap<UUID, Node<T>> getNodesMap() {
-            return nodesMap;
-        }
 
         private void linkLast(T task) {
 
-            Node<T> l = last;
+            Node<T> lastNode = last;
 
             Node<T> newNode = new Node<>(last, task, null);
             last = newNode;
-            if (l == null) {
+            if (lastNode == null) {
                 head = newNode;
-            } else
-                l.next = newNode;
+            } else {
+                lastNode.next = newNode;
+            }
             nodesMap.put(task.getId(), newNode);
         }
 
@@ -61,76 +57,41 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
 
         private void add(T task) {
-            Optional<Map.Entry<UUID, CustomLinkedList<Task>.Node<Task>>> taskNode = historyTasksList.getNodesMap()
-                    .entrySet().stream().filter(x -> x.getValue().item.equals(task)).findAny();
-
-            taskNode.ifPresent(uuidNodeEntry -> historyTasksList.removeNode(uuidNodeEntry.getValue()));
-            linkLast(task);
-
-        }
-
-        public void removeNode(Node<Task> node) {
-            UUID nodeID = getNodeId(node);
-            UUID previousNode;
-            UUID nextNode;
-            if (node.prev != null) {
-                previousNode = getNodeId(node.prev);
-            } else {
-                previousNode = null;
-            }
-            if (node.next != null) {
-                nextNode = getNodeId(node.next);
-            } else {
-                nextNode = null;
-            }
-
-            nodesMap.remove(nodeID);
-            if (previousNode != null && nextNode != null) {
-                rebuildNodesAfterRemoving(previousNode, nextNode);
+            if (task != null) {
+                removeNode(task.getId());
+                linkLast(task);
             }
         }
 
-        public UUID getNodeId(Node<Task> node) {
-            Optional<Map.Entry<UUID, CustomLinkedList<Task>.Node<Task>>> taskNode = historyTasksList.getNodesMap()
-                    .entrySet().stream().filter(x -> x.getValue().equals(node)).findAny();
+        public void removeNode(UUID taskID) {
+            Node<T> nodeToDelete = nodesMap.remove(taskID);
 
-            return taskNode.map(Map.Entry::getKey).orElse(null);
-        }
+            if (nodeToDelete != null) {
+                Node<T> previousNode = nodesMap.get(nodeToDelete.prev);
+                Node<T> NextNode = nodesMap.get(nodeToDelete.next);
 
-        private void rebuildNodesAfterRemoving(UUID previous, UUID next) {
-            if (previous != null) {
-                nodesMap.get(previous).setNext(nodesMap.get(next));
-            } else {
-                nodesMap.get(next).setPrev(null);
-            }
-            if (next != null) {
-                nodesMap.get(next).setPrev(nodesMap.get(previous));
-            } else {
-                nodesMap.get(previous).setNext(null);
+                if (NextNode != null) {
+                    NextNode.prev = previousNode;
+                }
+
+                if (previousNode != null) {
+                    previousNode.next = NextNode;
+                }
             }
 
+
         }
 
-        public class Node<E extends Task> {
-            Node<E> next;
-            Node<E> prev;
-            E item;
+        private class Node<E extends Task> {
+            private Node<E> next;
+            private Node<E> prev;
+            private E item;
 
             public Node(Node<E> prev, E element, Node<E> next) {
                 this.item = element;
                 this.next = next;
                 this.prev = prev;
             }
-
-
-            public void setNext(Node<E> next) {
-                this.next = next;
-            }
-
-            public void setPrev(Node<E> prev) {
-                this.prev = prev;
-            }
-
         }
 
     }

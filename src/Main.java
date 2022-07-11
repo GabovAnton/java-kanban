@@ -48,15 +48,13 @@ public class Main {
         EpicTask epicTask2 = new EpicTask("Купить продукты", null);
 
 
-        //test creating task and return ID
         UUID epictaskid2 = taskManager.createEpicTask(epicTask2);
 
 
-        //Print all tasks
         taskManager.printAllTasks();
 
         System.out.println("запрашиваем созданные задачи несколько раз в разном порядке;");
-        //Test "get" method
+
         System.out.println("*****Печатаем историю до каких-либо просмотров******");
         Managers.getDefaultHistory().getHistory().forEach(System.out::println);
 

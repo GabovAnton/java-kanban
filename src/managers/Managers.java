@@ -6,7 +6,7 @@ package managers;
 public class Managers {
     protected static HistoryManager inMemoryHistoryManager = new InMemoryHistoryManager();
 
-    public static  TaskManager getDefault() {
+    public static TaskManager getDefault() {
         return new InMemoryTaskManager();
     }
 

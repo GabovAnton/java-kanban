@@ -115,10 +115,8 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
 
     @Override
     public UUID createSubTask(SubTask task) {
-        //we should get parent ID to be able to add Tasks.SubTask
         if (task.getEpicId() != null) {
             if (tasks.containsKey(task.getEpicId())) {
-                //Эпик есть в общей коллекции
                 ((EpicTask) tasks.get(task.getEpicId())).addSubTasks(task.getId());
                 tasks.put(task.getId(), task);
             } else {
@@ -134,7 +132,6 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
 
     @Override
     public UUID createTask(Task task) {
-        //We can accept any task with any subTask, Also, we handle all UUID
         if (task != null) {
             task.setId();
             if (!tasks.containsKey(task.getId())) {
