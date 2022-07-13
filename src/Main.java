@@ -7,7 +7,6 @@ import tasks.TaskStatuses;
 
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 public class Main {
 
@@ -19,15 +18,15 @@ public class Main {
 
         Task task2 = new Task("Послушать музыку", null, TaskStatuses.IN_PROGRESS.toString());
 
-        UUID taskid1 = taskManager.createTask(task1);
+        Integer taskid1 = taskManager.createTask(task1);
 
-        UUID taskid2 = taskManager.createTask(task2);
+        Integer taskid2 = taskManager.createTask(task2);
 
 
         EpicTask epicTask1 = new EpicTask("Выучить уроки", "Выполнить все домашние задания");
 
         //test creating task and return ID
-        UUID epictaskid1 = taskManager.createEpicTask(epicTask1);
+        Integer epictaskid1 = taskManager.createEpicTask(epicTask1);
 
         SubTask subTask1 = new SubTask("Выучить стихотворение Лермонтова", "Тучи",
                 TaskStatuses.NEW.toString(),
@@ -48,7 +47,7 @@ public class Main {
         EpicTask epicTask2 = new EpicTask("Купить продукты", null);
 
 
-        UUID epictaskid2 = taskManager.createEpicTask(epicTask2);
+        Integer epictaskid2 = taskManager.createEpicTask(epicTask2);
 
 
         taskManager.printAllTasks();
@@ -56,28 +55,39 @@ public class Main {
         System.out.println("запрашиваем созданные задачи несколько раз в разном порядке;");
 
         System.out.println("*****Печатаем историю до каких-либо просмотров******");
-        Managers.getDefaultHistory().getHistory().forEach(System.out::println);
+       // Managers.getDefaultHistory().getHistory().forEach(System.out::println);
+        Managers.getDefaultHistory().printHistoryLinks();
 
         taskManager.getStandaloneTask(taskid1);
         System.out.println("*****Печатаем историю после просмотра 1 задачи******");
+        Managers.getDefaultHistory().printHistoryLinks();
 
         taskManager.getEpic(epictaskid1);
         System.out.println("*****Печатаем историю после просмотра 1 Эпика******");
-        Managers.getDefaultHistory().getHistory().forEach(System.out::println);
+       // Managers.getDefaultHistory().getHistory().forEach(System.out::println);
+        Managers.getDefaultHistory().printHistoryLinks();
 
         taskManager.getEpic(epictaskid2);
         System.out.println("*****Печатаем историю после просмотра 2 Эпика******");
-        Managers.getDefaultHistory().getHistory().forEach(System.out::println);
+//        Managers.getDefaultHistory().getHistory().forEach(System.out::println);
+        Managers.getDefaultHistory().printHistoryLinks();
 
-        for (int i = 0; i < 10; i++) {
+        /*for (int i = 0; i < 10; i++) {
             taskManager.getEpic(epictaskid2);
-        }
+        }*/
+                System.out.println("*****Печатаем историю после просмотра 2 Эпика  еще раз!!!!!!!!!!******");
+
+taskManager.getEpic(epictaskid2);  ////////////////////////
+        Managers.getDefaultHistory().printHistoryLinks();
+
+
 
         taskManager.getEpic(epictaskid1);
         taskManager.getStandaloneTask(taskid2);
 
         System.out.println("*****Печатаем историю после нескольких  просмотров Эпиков и задач******");
         Managers.getDefaultHistory().getHistory().forEach(System.out::println);
+        Managers.getDefaultHistory().printHistoryLinks();
 
         taskManager.deleteTask(taskid1);
         System.out.println("*****Печатаем историю после удаления задачи 'Посмотреть сериал'******");
@@ -87,14 +97,17 @@ public class Main {
         System.out.println("*****Печатаем  задачи ДО удаления эпика******");
         taskManager.printAllTasks();
 
-        taskManager.deleteTask(epictaskid1);
-        System.out.println("*****Печатаем  задачи после удаления эпика 'Выучить уроки'******");
 
-        taskManager.printAllTasks();
+        taskManager.deleteTask(epictaskid1);
+        System.out.println("*****Печатаем  все ссылки в CustomLinkedList  после удаления эпика 'Выучить уроки'******");
+
+
+        System.out.println("*****Печатаем все ссылки в CustomLinkedList  после удаления эпика 'Выучить уроки'******");
+        Managers.getDefaultHistory().printHistoryLinks();
 
     }
 
-    private static void updateRandomSubtasks(TaskManager taskManager, UUID epictaskid) {
+    private static void updateRandomSubtasks(TaskManager taskManager, Integer epictaskid) {
         EpicTask epicTask1Test = (EpicTask) taskManager.getTask(epictaskid);
         List<SubTask> subTasksToUpdate1 = taskManager.getAllSubTasksByEpic(epicTask1Test);
 

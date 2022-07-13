@@ -5,26 +5,28 @@ import tasks.SubTask;
 import tasks.Task;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author A.Gabov
  */
 public interface TaskManager {
 
+
     void updateEpicStatus(EpicTask task);
 
     List<Task> getTaskList();
 
+    Integer setTaskID();
+
     void deleteAllTasks();
 
-    Task getTask(UUID uid);
+    Task getTask(Integer uid);
 
-    UUID createEpicTask(EpicTask task);
+    Integer createEpicTask(EpicTask task);
 
-    UUID createSubTask(SubTask task);
+    Integer createSubTask(SubTask task);
 
-    UUID createTask(Task task);
+    Integer createTask(Task task);
 
     void updateEpicTask(EpicTask task);
 
@@ -32,16 +34,16 @@ public interface TaskManager {
 
     void updateTask(Task task);
 
-    boolean deleteTask(UUID id);
+    boolean deleteTask(Integer id);
 
     void printAllTasks();
 
     List<SubTask> getAllSubTasksByEpic(EpicTask task);
 
-    Task getStandaloneTask(UUID id);
+    Task getStandaloneTask(Integer id);
 
-    SubTask getSubtask(UUID id);
+    SubTask getSubtask(Integer id);
 
-    EpicTask getEpic(UUID id);
+    EpicTask getEpic(Integer id);
 
 }

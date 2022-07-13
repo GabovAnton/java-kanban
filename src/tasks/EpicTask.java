@@ -2,27 +2,27 @@ package tasks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author A.Gabov
  */
 public class EpicTask extends Task {
 
-    private ArrayList<UUID> subTasks = new ArrayList<>();
+    private ArrayList<Integer> subTasks = new ArrayList<>();
 
     public EpicTask(String name, String description, String status) {
         super(name, description, status);
     }
+
     public EpicTask(String name, String description) {
         super(name, description);
     }
 
-    public List<UUID> getSubTasks() {
+    public List<Integer> getSubTasks() {
         return subTasks;
     }
 
-    public void addSubTasks(UUID SubTaskId) {
+    public void addSubTasks(Integer SubTaskId) {
         if (!this.subTasks.contains(SubTaskId)) {
             this.subTasks.add(SubTaskId);
         }
@@ -30,6 +30,6 @@ public class EpicTask extends Task {
 
     @Override
     public String toString() {
-        return "Tasks.EpicTask: " +getName() + ", " + (getDescription() != null ? getDescription():"'empty description'") + ", ID: " + getId().toString() + ", " + getStatus() + ", SubTasksIDs: " + getSubTasks() ;
+        return "Tasks.EpicTask: " + getName() + ", " + (getDescription() != null ? getDescription() : "'empty description'") + ", ID: " + getId().toString() + ", " + getStatus() + ", SubTasksIDs: " + getSubTasks();
     }
 }

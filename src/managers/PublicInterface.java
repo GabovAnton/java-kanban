@@ -4,15 +4,14 @@ import tasks.EpicTask;
 import tasks.SubTask;
 import tasks.Task;
 
-import java.util.UUID;
 
 /**
  * @author A.Gabov
  */
 public interface PublicInterface {
-    Task getStandaloneTask(UUID id);
+    Task getStandaloneTask(Integer id);
 
-    SubTask getSubtask(UUID id);
+    SubTask getSubtask(Integer id);
 
-    EpicTask getEpic(UUID id);
+    EpicTask getEpic(Integer id);
 }

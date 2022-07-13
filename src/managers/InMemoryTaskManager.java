@@ -7,15 +7,23 @@ import tasks.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author A.Gabov
  */
 public class InMemoryTaskManager implements TaskManager, PublicInterface {
 
-    private HashMap<UUID, Task> tasks = new HashMap<>(); // тут вообще все таски хранятся
+    private static Integer taskID = 0;
+    private HashMap<Integer, Task> tasks = new HashMap<>(); // тут вообще все таски хранятся
     private HistoryManager historyManager = Managers.getDefaultHistory();
+
+
+    public Integer setTaskID() {
+        InMemoryTaskManager.taskID++;
+        return InMemoryTaskManager.taskID;
+
+    }
+
 
     @Override
     public void updateEpicStatus(EpicTask task) {
@@ -45,22 +53,22 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     }
 
     @Override
-    public Task getTask(UUID id) {
+    public Task getTask(Integer id) {
 
         if (id != null) {
             if (tasks.containsKey(id)) {
                 return tasks.get(id);
             } else {
-                throw new IllegalArgumentException("Provided element 'task UUID' " + id + "  not found");
+                throw new IllegalArgumentException("Provided element 'task ID' " + id + "  not found");
             }
         } else {
-            throw new NullPointerException("task UUID cannot be null");
+            throw new NullPointerException("task ID cannot be null");
 
         }
     }
 
     @Override
-    public Task getStandaloneTask(UUID id) {
+    public Task getStandaloneTask(Integer id) {
         if (!(tasks.get(id) instanceof SubTask) && !(tasks.get(id) instanceof EpicTask)) {
             historyManager.add(tasks.get(id));
             return getTask(id);
@@ -70,7 +78,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     }
 
     @Override
-    public SubTask getSubtask(UUID id) {
+    public SubTask getSubtask(Integer id) {
         if (tasks.get(id) instanceof SubTask) {
             historyManager.add(tasks.get(id));
             return (SubTask) getTask(id);
@@ -81,7 +89,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     }
 
     @Override
-    public EpicTask getEpic(UUID id) {
+    public EpicTask getEpic(Integer id) {
         if (tasks.get(id) instanceof EpicTask) {
             historyManager.add(tasks.get(id));
             return (EpicTask) getTask(id);
@@ -92,7 +100,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     }
 
     @Override
-    public UUID createEpicTask(EpicTask task) {
+    public Integer createEpicTask(EpicTask task) {
 
         if (task != null) {
             task.setId();
@@ -114,7 +122,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     }
 
     @Override
-    public UUID createSubTask(SubTask task) {
+    public Integer createSubTask(SubTask task) {
         if (task.getEpicId() != null) {
             if (tasks.containsKey(task.getEpicId())) {
                 ((EpicTask) tasks.get(task.getEpicId())).addSubTasks(task.getId());
@@ -131,7 +139,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     }
 
     @Override
-    public UUID createTask(Task task) {
+    public Integer createTask(Task task) {
         if (task != null) {
             task.setId();
             if (!tasks.containsKey(task.getId())) {
@@ -162,7 +170,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
                 }
                 updateEpicStatus(task);
             } else {
-                throw new IllegalArgumentException("Provided element 'task UUID' " + task.getId() + "  not found");
+                throw new IllegalArgumentException("Provided element 'task ID' " + task.getId() + "  not found");
             }
         } else {
             throw new NullPointerException("Tasks.Task object cannot be null");
@@ -201,7 +209,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
                 oldTask.setDescription(task.getDescription());
                 oldTask.setStatus(task.getStatus());
             } else {
-                throw new IllegalArgumentException("Provided element 'task UUID' " + task.getId() + "  not found");
+                throw new IllegalArgumentException("Provided element 'task ID' " + task.getId() + "  not found");
             }
         } else {
             throw new NullPointerException("Tasks.Task object cannot be null");
@@ -209,7 +217,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     }
 
     @Override
-    public boolean deleteTask(UUID id) {
+    public boolean deleteTask(Integer id) {
         boolean result = false;
         if (id != null) {
             if (tasks.containsKey(id)) {

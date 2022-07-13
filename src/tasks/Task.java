@@ -1,7 +1,8 @@
 package tasks;
 
+import managers.Managers;
+
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author A.Gabov
@@ -9,20 +10,21 @@ import java.util.UUID;
 public class Task {
     private String name;
     private String description;
-    private UUID id;
+    private Integer id;
     private String status;
+
 
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
-        this.id = UUID.randomUUID();
+        this.id = Managers.getDefault().setTaskID();
     }
 
     public Task(String name, String description, String status) {
         this.name = name;
         this.description = description;
         this.status = status;
-        this.id = UUID.randomUUID();
+        this.id = Managers.getDefault().setTaskID();
     }
 
 
@@ -42,12 +44,12 @@ public class Task {
         this.description = description;
     }
 
-    public UUID getId() {
+    public Integer getId() {
         return id;
     }
 
     public void setId() {
-        this.id = UUID.randomUUID();
+        this.id = Managers.getDefault().setTaskID();
     }
 
     public String getStatus() {

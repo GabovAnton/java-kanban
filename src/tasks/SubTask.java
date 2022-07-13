@@ -1,13 +1,12 @@
 package tasks;
 
-import java.util.UUID;
 
 /**
  * @author A.Gabov
  */
 public class SubTask extends Task {
 
-    private UUID epicId;
+    private Integer epicId;
 
     public SubTask(String name, String description) {
         super(name, description);
@@ -16,16 +15,17 @@ public class SubTask extends Task {
     public SubTask(String name, String description, String status) {
         super(name, description, status);
     }
-    public SubTask(String name, String description, String status, UUID epicId) {
+
+    public SubTask(String name, String description, String status, Integer epicId) {
         super(name, description, status);
         this.epicId = epicId;
     }
 
-    public UUID getEpicId() {
+    public Integer getEpicId() {
         return epicId;
     }
 
-    public void setEpicId(UUID epicId) {
+    public void setEpicId(Integer epicId) {
         if (epicId != null) {
             this.epicId = epicId;
         } else {
@@ -35,7 +35,7 @@ public class SubTask extends Task {
 
     @Override
     public String toString() {
-        return "        Subtask {" + getName() + ", " + (getDescription() != null ? getDescription():"'empty description'") + ", ID: " + getId() +  "," + getStatus() + "}";
+        return "        Subtask {" + getName() + ", " + (getDescription() != null ? getDescription() : "'empty description'") + ", ID: " + getId() + "," + getStatus() + "}";
     }
 
 }
