@@ -31,6 +31,8 @@ public interface TaskManager {
 
     boolean deleteTask(Integer id);
 
+    void deleteAllTasks();
+
     Task getStandaloneTask(Integer id);
 
     SubTask getSubtask(Integer id);

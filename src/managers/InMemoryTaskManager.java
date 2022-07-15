@@ -49,7 +49,8 @@ public class InMemoryTaskManager implements TaskManager {
         return allTasks;
     }
 
-    private <T extends HashMap<Integer, ? extends Task>> void addCollectionToHistory(T collection, List<Task> allTasks) {
+    private <T extends HashMap<Integer, ? extends Task>> void addCollectionToHistory(T collection, List<Task> allTasks)
+    {
         collection.values().forEach(x -> {
             allTasks.add(x);
             historyManager.add(x);
@@ -61,6 +62,17 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager;
     }
 
+    @Override
+    public void deleteAllTasks() {
+        epicTasks.entrySet().forEach(x->historyManager.remove(x.getKey()));
+        subTasks.entrySet().forEach(x->historyManager.remove(x.getKey()));
+        tasks.entrySet().forEach(x->historyManager.remove(x.getKey()));
+
+        epicTasks.clear();
+        subTasks.clear();
+        tasks.clear();
+
+    }
     @Override
     public Task getStandaloneTask(Integer id) {
         if (tasks.containsKey(id)) {
@@ -261,6 +273,7 @@ public class InMemoryTaskManager implements TaskManager {
             } else if (!(task instanceof SubTask)) {
                 System.out.println(task);
             }
+            historyManager.add(task);
         });
     }
 
@@ -268,9 +281,15 @@ public class InMemoryTaskManager implements TaskManager {
     public List<SubTask> getAllSubTasksByEpic(EpicTask epic) {
 
         if (epic != null) {
-            ArrayList<SubTask> subtasks = new ArrayList<>();
-            epic.getSubTasks().forEach(id -> subtasks.add(subTasks.get(id)));
-            return subtasks;
+            historyManager.add(epic);
+
+            ArrayList<SubTask> subTasks = new ArrayList<>();
+            epic.getSubTasks().forEach(id ->{
+                subTasks.add(this.subTasks.get(id));
+                historyManager.add(this.subTasks.get(id));
+            });
+
+            return subTasks;
         } else {
             throw new NullPointerException("Tasks.Task object cannot be null");
         }
