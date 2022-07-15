@@ -13,20 +13,16 @@ public class Task {
     private Integer id;
     private String status;
 
-
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
-        this.id = Managers.getDefault().setTaskID();
     }
 
     public Task(String name, String description, String status) {
         this.name = name;
         this.description = description;
         this.status = status;
-        this.id = Managers.getDefault().setTaskID();
     }
-
 
     public String getName() {
         return name;
@@ -48,8 +44,8 @@ public class Task {
         return id;
     }
 
-    public void setId() {
-        this.id = Managers.getDefault().setTaskID();
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getStatus() {

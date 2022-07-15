@@ -11,9 +11,8 @@ public interface HistoryManager {
 
     ArrayList<Task> getHistory();
 
-    <T extends Task> void add(T task);
+    void add(Task task);
 
-    void deleteTaskFromHistory(Integer taskid1);
+    void remove(int taskId);
 
-    void printHistoryLinks();
 }

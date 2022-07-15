@@ -16,9 +16,7 @@ public interface TaskManager {
 
     List<Task> getTaskList();
 
-    Integer setTaskID();
-
-    void deleteAllTasks();
+   HistoryManager getHistoryManager();
 
     Task getTask(Integer uid);
 

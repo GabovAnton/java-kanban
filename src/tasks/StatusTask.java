@@ -3,7 +3,7 @@ package tasks;
 /**
  * @author A.Gabov
  */
-public enum TaskStatuses {
+public enum StatusTask {
     NEW,
     IN_PROGRESS,
     DONE

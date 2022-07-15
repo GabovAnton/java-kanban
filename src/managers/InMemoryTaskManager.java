@@ -11,19 +11,15 @@ import java.util.List;
 /**
  * @author A.Gabov
  */
-public class InMemoryTaskManager implements TaskManager, PublicInterface {
-
+public  class InMemoryTaskManager implements TaskManager {
     private static Integer taskID = 0;
     private HashMap<Integer, Task> tasks = new HashMap<>(); // тут вообще все таски хранятся
-    private HistoryManager historyManager = Managers.getDefaultHistory();
+    public static HistoryManager historyManager = Managers.getDefaultHistory();
 
-
-    public Integer setTaskID() {
+    private Integer setTaskID() {
         InMemoryTaskManager.taskID++;
         return InMemoryTaskManager.taskID;
-
     }
-
 
     @Override
     public void updateEpicStatus(EpicTask task) {
@@ -48,13 +44,12 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     }
 
     @Override
-    public void deleteAllTasks() {
-        tasks.clear();
+    public HistoryManager getHistoryManager() {
+        return historyManager;
     }
 
     @Override
     public Task getTask(Integer id) {
-
         if (id != null) {
             if (tasks.containsKey(id)) {
                 return tasks.get(id);
@@ -63,7 +58,6 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
             }
         } else {
             throw new NullPointerException("task ID cannot be null");
-
         }
     }
 
@@ -103,7 +97,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     public Integer createEpicTask(EpicTask task) {
 
         if (task != null) {
-            task.setId();
+            task.setId(setTaskID());
             if (task.getSubTasks().isEmpty()) {
                 task.setStatus("NEW");
                 tasks.put(task.getId(), task);
@@ -125,6 +119,9 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     public Integer createSubTask(SubTask task) {
         if (task.getEpicId() != null) {
             if (tasks.containsKey(task.getEpicId())) {
+              if (task.getId() == null) {
+                  task.setId(setTaskID());
+              }
                 ((EpicTask) tasks.get(task.getEpicId())).addSubTasks(task.getId());
                 tasks.put(task.getId(), task);
             } else {
@@ -141,7 +138,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
     @Override
     public Integer createTask(Task task) {
         if (task != null) {
-            task.setId();
+            task.setId(setTaskID());
             if (!tasks.containsKey(task.getId())) {
                 tasks.put(task.getId(), task);
             } else {
@@ -222,7 +219,7 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
         if (id != null) {
             if (tasks.containsKey(id)) {
                 tasks.remove(id);
-                Managers.getDefaultHistory().deleteTaskFromHistory(id);
+                historyManager.remove(id);
                 result = true;
             } else {
                 throw new IllegalArgumentException("Provided element 'id' " + id + "  not found");
@@ -230,7 +227,6 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
 
         } else {
             throw new NullPointerException("id object cannot be null");
-
         }
         return result;
     }
@@ -260,6 +256,5 @@ public class InMemoryTaskManager implements TaskManager, PublicInterface {
         }
 
     }
-
 
 }
