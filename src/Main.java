@@ -42,45 +42,41 @@ public class Main {
         taskManager.createSubTask(subTask2);
         taskManager.createSubTask(subTask3);
 
-
         EpicTask epicTask2 = new EpicTask("Купить продукты", null);
 
 
         Integer epicTaskId2 = taskManager.createEpicTask(epicTask2);
 
-
-        taskManager.printAllTasks();
-
-        System.out.println("запрашиваем созданные задачи несколько раз в разном порядке;");
-
         System.out.println("*****Печатаем историю до каких-либо просмотров******");
+        inMemoryHistoryManager.getHistory().forEach(System.out::println);
 
-        taskManager.getStandaloneTask(taskId1);
+
         System.out.println("*****Печатаем историю после просмотра 1 задачи******");
-        inMemoryHistoryManager.printHistoryLinks();
+        taskManager.getStandaloneTask(taskId1);
+        inMemoryHistoryManager.getHistory().forEach(System.out::println);
 
         taskManager.getEpic(epicTaskId1);
         System.out.println("*****Печатаем историю после просмотра 1 Эпика******");
-        inMemoryHistoryManager.printHistoryLinks();
+        inMemoryHistoryManager.getHistory().forEach(System.out::println);
 
 
         taskManager.getEpic(epicTaskId2);
         System.out.println("*****Печатаем историю после просмотра 2 Эпика******");
+        inMemoryHistoryManager.getHistory().forEach(System.out::println);
+        System.out.println("Печатаем все ссылки в CustomLinkedList");
         inMemoryHistoryManager.printHistoryLinks();
 
-
-        System.out.println("*****Печатаем историю после просмотра 2 Эпика  еще раз!!!!!!!!!!******");
-
-        taskManager.getEpic(epicTaskId2);
-        inMemoryHistoryManager.printHistoryLinks();
-
+        System.out.println("*****Печатаем историю после просмотра 1 Эпика 'id:" + epicTaskId1 + "' еще раз******");
+        inMemoryHistoryManager.getHistory().forEach(System.out::println);
 
         taskManager.getEpic(epicTaskId1);
-        taskManager.getStandaloneTask(taskId2);
 
-        System.out.println("*****Печатаем историю после нескольких  просмотров Эпиков и задач******");
+        System.out.println("*****Печатаем историю после хаотичных просмотров******");
+        taskManager.getStandaloneTask(taskId2);
+        taskManager.getEpic(epicTaskId1);
+        taskManager.getStandaloneTask(taskId2);
+        taskManager.getSubtask(5);
         inMemoryHistoryManager.getHistory().forEach(System.out::println);
-        inMemoryHistoryManager.printHistoryLinks();
 
 
         taskManager.deleteTask(taskId1);
@@ -88,16 +84,19 @@ public class Main {
         inMemoryHistoryManager.getHistory().forEach(System.out::println);
         System.out.println("№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№");
 
-        System.out.println("*****Печатаем все ссылки в CustomLinkedList  задачи ДО удаления эпика******");
-        inMemoryHistoryManager.printHistoryLinks();
-
 
         taskManager.deleteTask(epicTaskId1);
-        System.out.println("*****Печатаем  все ссылки в CustomLinkedList  после удаления эпика 'Выучить уроки'******");
-
-
-        System.out.println("*****Печатаем все ссылки в CustomLinkedList  после удаления эпика 'Выучить уроки'******");
+        System.out.println("*****Печатаем  все ссылки в CustomLinkedList  после удаления эпика '1'******");
         inMemoryHistoryManager.printHistoryLinks();
+        inMemoryHistoryManager.getHistory().forEach(System.out::println);
+
+
+        taskManager.deleteTask(epicTaskId2);
+
+        System.out.println("*****Печатаем все ссылки в CustomLinkedList  после удаления эпика '2'******");
+        inMemoryHistoryManager.printHistoryLinks();
+        inMemoryHistoryManager.getHistory().forEach(System.out::println);
+
 
     }
 

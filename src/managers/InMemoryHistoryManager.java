@@ -1,6 +1,7 @@
 package managers;
 
 import tasks.Task;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -99,7 +100,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         @Override
         public String toString() {
             String next = this.next == null ? "null" : this.next.item.getId().toString();
-            String prev = this.prev == null ? "null":  this.prev.item.getId().toString();
+            String prev = this.prev == null ? "null" : this.prev.item.getId().toString();
             return "Node{" +
                     "next=" + next +
                     ", prev=" + prev +

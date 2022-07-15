@@ -11,14 +11,11 @@ import java.util.List;
  */
 public interface TaskManager {
 
-
     void updateEpicStatus(EpicTask task);
 
     List<Task> getTaskList();
 
-   HistoryManager getHistoryManager();
-
-    Task getTask(Integer uid);
+    HistoryManager getHistoryManager();
 
     Integer createEpicTask(EpicTask task);
 
@@ -28,15 +25,11 @@ public interface TaskManager {
 
     void updateEpicTask(EpicTask task);
 
-    void updateSubTask(SubTask task);
+    void updateSubTask(SubTask subTask);
 
     void updateTask(Task task);
 
     boolean deleteTask(Integer id);
-
-    void printAllTasks();
-
-    List<SubTask> getAllSubTasksByEpic(EpicTask task);
 
     Task getStandaloneTask(Integer id);
 
@@ -44,4 +37,7 @@ public interface TaskManager {
 
     EpicTask getEpic(Integer id);
 
+    void printAllTasks();
+
+    List<SubTask> getAllSubTasksByEpic(EpicTask epic);
 }

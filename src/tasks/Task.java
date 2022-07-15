@@ -1,7 +1,5 @@
 package tasks;
 
-import managers.Managers;
-
 import java.util.Objects;
 
 /**
