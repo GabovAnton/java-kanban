@@ -12,14 +12,14 @@ import java.util.List;
  * @author A.Gabov
  */
 public class InMemoryTaskManager implements TaskManager {
-    public static HistoryManager historyManager = Managers.getDefaultHistory();
-    private static Integer taskID = 0;
+    private static Integer taskId = 0;
+    public final HistoryManager historyManager = Managers.getDefaultHistory();
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, EpicTask> epicTasks = new HashMap<>();
     private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
 
-    private Integer setTaskID() {
-        return ++InMemoryTaskManager.taskID;
+    private Integer setTaskId() {
+        return ++InMemoryTaskManager.taskId;
     }
 
     @Override
@@ -40,21 +40,22 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Task> getTaskList() {
-        List<Task> allTasks = new ArrayList<>();
-        addCollectionToHistory(tasks, allTasks);
-        addCollectionToHistory(epicTasks, allTasks);
-        addCollectionToHistory(subTasks, allTasks);
-
-        return allTasks;
+    public List<Task> getTasks() {
+        return getTaskCollection(tasks);
     }
 
-    private <T extends HashMap<Integer, ? extends Task>> void addCollectionToHistory(T collection, List<Task> allTasks)
-    {
-        collection.values().forEach(x -> {
-            allTasks.add(x);
-            historyManager.add(x);
-        });
+    @Override
+    public List<Task> getSubtasks() {
+        return getTaskCollection(subTasks);
+    }
+
+    @Override
+    public List<Task> getEpics() {
+        return getTaskCollection(epicTasks);
+    }
+
+    private <T extends HashMap<Integer, ? extends Task>> ArrayList<Task> getTaskCollection(T collection) {
+        return new ArrayList<>(collection.values());
     }
 
     @Override
@@ -64,38 +65,49 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllTasks() {
-        epicTasks.entrySet().forEach(x->historyManager.remove(x.getKey()));
-        subTasks.entrySet().forEach(x->historyManager.remove(x.getKey()));
-        tasks.entrySet().forEach(x->historyManager.remove(x.getKey()));
-
-        epicTasks.clear();
-        subTasks.clear();
+        tasks.forEach((key, value) -> historyManager.remove(key));
         tasks.clear();
+    }
+
+    @Override
+    public void deleteAllSubTasks() {
+        subTasks.forEach((key, value) -> historyManager.remove(key));
+        epicTasks.clear();
 
     }
+
+    @Override
+    public void deleteAllEpicTasks() {
+        epicTasks.forEach((key, value) -> {
+            historyManager.remove(key);
+            value.getSubTasks().forEach(subTask -> {
+                subTasks.remove(subTask);
+                historyManager.remove(subTask);
+            });
+        });
+
+        epicTasks.clear();
+    }
+
     @Override
     public Task getStandaloneTask(Integer id) {
         if (tasks.containsKey(id)) {
             historyManager.add(tasks.get(id));
             return tasks.get(id);
         } else {
-            throw new IllegalArgumentException("Provided element 'task ID' " + id + "  not found");
+            return null;
         }
     }
 
     @Override
     public SubTask getSubtask(Integer id) {
-        if (id != null) {
-            if (subTasks.containsKey(id)) {
-                historyManager.add(subTasks.get(id));
-                return subTasks.get(id);
-            } else {
-                throw new IllegalArgumentException("Provided element 'subtask ID' " + id + "  not found");
-            }
-        } else {
-            throw new NullPointerException("task ID cannot be null");
-        }
 
+        if (subTasks.containsKey(id)) {
+            historyManager.add(subTasks.get(id));
+            return subTasks.get(id);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -104,8 +116,7 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.add(epicTasks.get(id));
             return epicTasks.get(id);
         } else {
-            throw new IllegalArgumentException("Provided element UID is not an Epic " + id.toString());
-
+            return null;
         }
     }
 
@@ -113,7 +124,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Integer createEpicTask(EpicTask task) {
 
         if (task != null) {
-            task.setId(setTaskID());
+            task.setId(setTaskId());
             if (task.getSubTasks().isEmpty()) {
                 task.setStatus("NEW");
                 epicTasks.put(task.getId(), task);
@@ -134,7 +145,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (task.getEpicId() != null) {
             if (epicTasks.containsKey(task.getEpicId())) {
                 if (task.getId() == null) {
-                    task.setId(setTaskID());
+                    task.setId(setTaskId());
                 }
                 (epicTasks.get(task.getEpicId())).addSubTasks(task.getId());
                 subTasks.put(task.getId(), task);
@@ -152,7 +163,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Integer createTask(Task task) {
         if (task != null) {
-            task.setId(setTaskID());
+            task.setId(setTaskId());
             if (!tasks.containsKey(task.getId())) {
                 tasks.put(task.getId(), task);
             } else {
@@ -229,14 +240,29 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public boolean deleteTask(Integer id) {
-        boolean result = false;
+        boolean result;
 
         if (id != null) {
             if (tasks.containsKey(id)) {
                 tasks.remove(id);
                 historyManager.remove(id);
                 result = true;
-            } else if (epicTasks.containsKey(id)) {
+            } else {
+                throw new IllegalArgumentException("Provided element 'id' " + id + "  not found");
+            }
+
+        } else {
+            throw new NullPointerException("id object cannot be null");
+        }
+        return result;
+    }
+
+    @Override
+    public boolean deleteEpic(Integer id) {
+        boolean result = false;
+
+        if (id != null) {
+            if (epicTasks.containsKey(id)) {
                 EpicTask epicTaskToDelete = epicTasks.get(id);
                 epicTaskToDelete.getSubTasks().forEach(k -> {
                     subTasks.remove(k);
@@ -246,7 +272,22 @@ public class InMemoryTaskManager implements TaskManager {
                 epicTasks.remove(id);
                 historyManager.remove(id);
 
-            } else if (subTasks.containsKey(id)) {
+            } else {
+                throw new IllegalArgumentException("Provided element 'id' " + id + "  not found");
+            }
+
+        } else {
+            throw new NullPointerException("id object cannot be null");
+        }
+        return result;
+    }
+
+    @Override
+    public boolean deleteSubTask(Integer id) {
+        boolean result = false;
+
+        if (id != null) {
+            if (subTasks.containsKey(id)) {
                 SubTask subTaskToDelete = subTasks.get(id);
                 int epicID = subTaskToDelete.getEpicId();
 
@@ -265,7 +306,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void printAllTasks() {
-        getTaskList().forEach(task -> {
+        this.getTasks().forEach(task -> {
             if (task instanceof EpicTask) {
                 System.out.println(task);
                 ((EpicTask) task).getSubTasks().forEach(subTaskId ->
@@ -284,7 +325,7 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.add(epic);
 
             ArrayList<SubTask> subTasks = new ArrayList<>();
-            epic.getSubTasks().forEach(id ->{
+            epic.getSubTasks().forEach(id -> {
                 subTasks.add(this.subTasks.get(id));
                 historyManager.add(this.subTasks.get(id));
             });

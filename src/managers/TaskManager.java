@@ -13,7 +13,11 @@ public interface TaskManager {
 
     void updateEpicStatus(EpicTask task);
 
-    List<Task> getTaskList();
+    List<Task> getTasks();
+
+    List<Task> getSubtasks();
+
+    List<Task> getEpics();
 
     HistoryManager getHistoryManager();
 
@@ -33,11 +37,19 @@ public interface TaskManager {
 
     void deleteAllTasks();
 
+    void deleteAllSubTasks();
+
+    void deleteAllEpicTasks();
+
     Task getStandaloneTask(Integer id);
 
     SubTask getSubtask(Integer id);
 
     EpicTask getEpic(Integer id);
+
+    boolean deleteEpic(Integer id);
+
+    boolean deleteSubTask(Integer id);
 
     void printAllTasks();
 
