@@ -15,9 +15,9 @@ public interface TaskManager {
 
     List<Task> getTasks();
 
-    List<Task> getSubtasks();
+    List<SubTask> getSubtasks();
 
-    List<Task> getEpics();
+    List<EpicTask> getEpics();
 
     HistoryManager getHistoryManager();
 

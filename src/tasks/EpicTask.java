@@ -26,6 +26,5 @@ public class EpicTask extends Task {
 
     @Override
     public String toString() {
-        return "Tasks.EpicTask: " + getName() + ", " + (getDescription() != null ? getDescription() : "'empty description'") + ", ID: " + getId().toString() + ", " + getStatus() + ", SubTasksIDs: " + getSubTasks();
-    }
+        return getId().toString() + "," + TaskType.EPIC + "," + getName() + "," +   getStatus() + "," + (getDescription() != null ? getDescription() : ' ');    }
 }

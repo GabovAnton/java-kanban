@@ -41,20 +41,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> getTasks() {
-        return getTaskCollection(tasks);
+        return (List<Task>) getTaskCollection(tasks);
     }
 
     @Override
-    public List<Task> getSubtasks() {
-        return getTaskCollection(subTasks);
+    public List<SubTask> getSubtasks() {
+        return (List<SubTask>) getTaskCollection(subTasks);
     }
 
     @Override
-    public List<Task> getEpics() {
-        return getTaskCollection(epicTasks);
+    public List<EpicTask> getEpics() {
+        return (List<EpicTask>) getTaskCollection(epicTasks);
     }
 
-    private <T extends HashMap<Integer, ? extends Task>> ArrayList<Task> getTaskCollection(T collection) {
+    private <T extends HashMap<Integer, ? extends Task>> ArrayList<? extends Task> getTaskCollection(T collection) {
         return new ArrayList<>(collection.values());
     }
 

@@ -79,7 +79,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "    Tasks.Task: " + getName() + ", " + (getDescription() != null ? getDescription() : "'empty description'") + ", ID: " + getId().toString() + ", " + getStatus();
+        return getId().toString() + "," + TaskType.TASK + "," + getName() + "," +   getStatus() + "," + (getDescription() != null ? getDescription() : ' ');
     }
 
 }

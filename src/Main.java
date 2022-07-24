@@ -1,8 +1,9 @@
+import managers.FileBackedTasksManager;
 import managers.InMemoryHistoryManager;
 import managers.Managers;
 import managers.TaskManager;
 import tasks.EpicTask;
-import tasks.StatusTask;
+import tasks.TaskStatus;
 import tasks.SubTask;
 import tasks.Task;
 
@@ -13,10 +14,9 @@ public class Main {
 
         TaskManager taskManager = Managers.getDefault();
         InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
+        Task task1 = new Task("Посмотреть сериал", null, TaskStatus.NEW.toString());
 
-        Task task1 = new Task("Посмотреть сериал", null, StatusTask.NEW.toString());
-
-        Task task2 = new Task("Послушать музыку", null, StatusTask.IN_PROGRESS.toString());
+        Task task2 = new Task("Послушать музыку", null, TaskStatus.IN_PROGRESS.toString());
 
         Integer taskId1 = taskManager.createTask(task1);
 
@@ -28,14 +28,14 @@ public class Main {
         Integer epicTaskId1 = taskManager.createEpicTask(epicTask1);
 
         SubTask subTask1 = new SubTask("Выучить стихотворение Лермонтова", "Тучи",
-                StatusTask.NEW.toString(),
+                TaskStatus.NEW.toString(),
                 epicTaskId1);
 
         SubTask subTask2 = new SubTask("Выучить стихотворение Есенина", "Письмо к женщине",
-                StatusTask.NEW.toString(),
+                TaskStatus.NEW.toString(),
                 epicTaskId1);
 
-        SubTask subTask3 = new SubTask("Купить йогурт", "в Ашане", StatusTask.NEW.toString(),
+        SubTask subTask3 = new SubTask("Выучить стихотворение А. Блока", "Летний вечер", TaskStatus.NEW.toString(),
                 epicTaskId1);
 
         taskManager.createSubTask(subTask1);
@@ -85,14 +85,14 @@ public class Main {
         System.out.println("№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№");
 
 
-        taskManager.deleteTask(epicTaskId1);
+        taskManager.deleteEpic(epicTaskId1);
         String str = "";
         System.out.println("*****Печатаем  все ссылки в CustomLinkedList  после удаления эпика '1'******");
         inMemoryHistoryManager.printHistoryLinks();
         inMemoryHistoryManager.getHistory().forEach(System.out::println);
 
 
-        taskManager.deleteTask(epicTaskId2);
+        taskManager.deleteEpic(epicTaskId2);
 
         System.out.println("*****Печатаем все ссылки в CustomLinkedList  после удаления эпика '2'******");
         inMemoryHistoryManager.printHistoryLinks();
