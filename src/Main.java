@@ -86,6 +86,7 @@ public class Main {
 
 
         taskManager.deleteTask(epicTaskId1);
+        String str = "";
         System.out.println("*****Печатаем  все ссылки в CustomLinkedList  после удаления эпика '1'******");
         inMemoryHistoryManager.printHistoryLinks();
         inMemoryHistoryManager.getHistory().forEach(System.out::println);
