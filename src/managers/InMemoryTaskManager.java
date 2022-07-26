@@ -3,6 +3,7 @@ package managers;
 import tasks.EpicTask;
 import tasks.SubTask;
 import tasks.Task;
+import tasks.TaskStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -124,9 +125,11 @@ public class InMemoryTaskManager implements TaskManager {
     public Integer createEpicTask(EpicTask task) {
 
         if (task != null) {
-            task.setId(setTaskId());
+            if (task.getId() == null) {
+                task.setId(setTaskId());
+            }
             if (task.getSubTasks().isEmpty()) {
-                task.setStatus("NEW");
+                task.setStatus(TaskStatus.NEW.name());
                 epicTasks.put(task.getId(), task);
             } else {
                 task.getSubTasks().forEach(subTaskId ->
@@ -163,7 +166,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Integer createTask(Task task) {
         if (task != null) {
-            task.setId(setTaskId());
+            if (task.getId() == null) {
+                task.setId(setTaskId());
+            }
             if (!tasks.containsKey(task.getId())) {
                 tasks.put(task.getId(), task);
             } else {
