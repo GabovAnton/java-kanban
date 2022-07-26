@@ -23,11 +23,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             .getPath("");
     final static String ARCHIVE_NAME = "canban.csv";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ManagerSaveException {
         loadFromFile(HOME_DIRECTORY.resolve(ARCHIVE_NAME).toFile());
     }
 
-    public static void loadFromFile(File file) {
+    public static void loadFromFile(File file) throws ManagerSaveException {
         Path pathToFIle = HOME_DIRECTORY.resolve(ARCHIVE_NAME);
         TaskManager taskManager = Managers.getDefault();
         InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
@@ -62,7 +62,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
 
         } catch (IOException exception) {
-            //throw new ManagerSaveException(exception.getMessage());
+            throw new ManagerSaveException(exception.getMessage());
         }
     }
 
