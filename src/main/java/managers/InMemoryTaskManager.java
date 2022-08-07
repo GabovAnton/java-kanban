@@ -23,6 +23,10 @@ public class InMemoryTaskManager implements TaskManager {
         return ++InMemoryTaskManager.taskId;
     }
 
+    public final void setInitialId(int id){
+        taskId = id;
+    }
+
     @Override
     public void updateEpicStatus(EpicTask task) {
         boolean isAllSubTaskIsNewTask = task.getSubTasks().stream().allMatch(subTask ->

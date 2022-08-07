@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,12 +36,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         try {
             String content = Files.readString(pathToFIle);
             boolean isTask = true;
+            int maxId = 0;
             String[] stringArray = content.split(System.lineSeparator());
             for (int i = 1; i < stringArray.length; i++) {
                 String str = stringArray[i];
                 if (isTask) {
                     if (!str.isEmpty() && str != "\\r" && str != "\\n") {
                         Task task = fromString(str);
+                        maxId = task.getId() > maxId ? task.getId() : maxId;
                         if (task instanceof SubTask) {
                             taskManager.createSubTask((SubTask) task);
                         } else if (task instanceof EpicTask) {
@@ -59,7 +63,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 }
 
             }
-
+            taskManager.setInitialId(maxId);
 
         } catch (IOException exception) {
             throw new ManagerSaveException(exception.getMessage());
@@ -102,10 +106,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     static Task fromString(String value) {
         List<String> tasks = List.of(value.split(","));
+        /////
+        LocalDateTime localDateTime = LocalDateTime.now();
+        Duration duration =Duration.between(localDateTime, localDateTime.minusDays(15));
 
+        ////
         Task newTask;
         if (tasks.get(1).equals(TaskType.TASK.name())) {
-            newTask = new Task(tasks.get(2), tasks.get(4), tasks.get(3), Integer.parseInt(tasks.get(0)));
+            newTask = new Task(tasks.get(2), tasks.get(4), tasks.get(3), Integer.parseInt(tasks.get(0)),localDateTime, duration);
             return newTask;
         } else if (tasks.get(1).equals(TaskType.EPIC.name())) {
             newTask = new EpicTask(tasks.get(2), tasks.get(4), tasks.get(3), Integer.parseInt(tasks.get(0)));

@@ -54,4 +54,6 @@ public interface TaskManager {
     void printAllTasks();
 
     List<SubTask> getAllSubTasksByEpic(EpicTask epic);
+
+    void  setInitialId(int maxId);
 }
