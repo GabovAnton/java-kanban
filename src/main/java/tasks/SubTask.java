@@ -1,6 +1,9 @@
 package tasks;
 
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * @author A.Gabov
  */
@@ -8,12 +11,13 @@ public class SubTask extends Task {
 
     private Integer epicId;
 
-    public SubTask(String name, String description, String status, Integer epicId) {
-        super(name, description, status);
+      public SubTask(String name, String description, String status, Integer epicId,LocalDateTime startTime, Integer duration) {
+        super(name, description, status,startTime, duration);
         this.epicId = epicId;
     }
-    public SubTask(String name, String description, String status, Integer epicId, int id) {
-        super(name, description, status, id);
+
+    public SubTask(String name, String description, String status, Integer epicId, int id, LocalDateTime startTime, Integer duration) {
+        super(name, description, status, id, startTime, duration);
         this.epicId = epicId;
     }
 
@@ -31,7 +35,16 @@ public class SubTask extends Task {
 
     @Override
     public String toString() {
-        return getId().toString() + "," + TaskType.SUBTASK + "," + getName() + "," +   getStatus() + "," + (getDescription() != null ? getDescription() : "' '") + "," + getEpicId();
+        StringBuilder sb = new StringBuilder();
+        sb.append(getId().toString()).append(",");
+        sb.append(TaskType.SUBTASK).append(",");
+        sb.append(getName()).append(",");
+        sb.append(getStatus()).append(",");
+        sb.append(getDescription() != null ? getDescription() : "' '").append(",");
+        sb.append(getStartTime().format(formatter)).append(",");
+        sb.append(getDuration() != null ? getDuration() : "' '").append(",");
+        sb.append(getEpicId());
+        return sb.toString();
     }
 
 }

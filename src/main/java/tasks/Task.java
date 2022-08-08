@@ -3,6 +3,7 @@ package tasks;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /**
@@ -13,21 +14,31 @@ public class Task {
     private String description;
     private Integer id;
     private String status;
-    private Duration duration;
+
+
+
+    private Integer duration;
     private LocalDateTime startTime;
 
+    public static final DateTimeFormatter getFormatter() {
+        return formatter;
+    }
+
+    static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
     }
 
-    public Task(String name, String description, String status) {
+    public Task(String name, String description, String status, LocalDateTime startTime, Integer duration) {
         this.name = name;
         this.description = description;
         this.status = status;
+        this.startTime = startTime;
+        this.duration = duration;
     }
-    public Task(String name, String description, String status, int id, LocalDateTime startTime, Duration duration) {
+    public Task(String name, String description, String status, int id, LocalDateTime startTime, Integer duration) {
         this.name = name;
         this.description = description;
         this.status = status;
@@ -36,8 +47,19 @@ public class Task {
         this.duration = duration;
     }
 
+    public Integer getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
     public LocalDateTime getEndTime(){
-        return this.startTime.plus(duration);
+        return this.startTime.plus(Duration.ofMinutes(this.duration));
     }
 
     public String getName() {
@@ -97,7 +119,21 @@ public class Task {
 
     @Override
     public String toString() {
-        return getId().toString() + "," + TaskType.TASK + "," + getName() + "," + duration +  getStatus() + "," + (getDescription() != null ? getDescription() : "' '");
+        StringBuilder sb = new StringBuilder();
+        sb.append(getId().toString()).append(",");
+        sb.append(TaskType.TASK).append(",");
+        sb.append(getName()).append(",");
+        sb.append(getStatus()).append(",");
+        sb.append(getDescription()!= null ? getDescription() : "' '").append(",");
+        sb.append(getStartTime().format(formatter)).append(",");
+        sb.append(getDuration()!= null ?  getDuration() : "' '");
+        return sb.toString();
+
+      /*  return getId().toString() + "," + TaskType.TASK + "," + getName() + ","  +  getStatus() + "," +
+                (getDescription()!= null ? getDescription() : "' '") + "," +
+                (getStartTime().format(formatter)!= null ? getStartTime().format(formatter) : "' '") + "," +
+                ( getDuration()!= null ?  getDuration() : "' '");*/
+
     }
 
 }

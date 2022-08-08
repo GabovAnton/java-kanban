@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * @author A.Gabov
@@ -46,10 +48,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         maxId = task.getId() > maxId ? task.getId() : maxId;
                         if (task instanceof SubTask) {
                             taskManager.createSubTask((SubTask) task);
+                            System.out.println("subTask id: " + task.getId() + ": loaded");
                         } else if (task instanceof EpicTask) {
                             taskManager.createEpicTask((EpicTask) task);
+                            System.out.println("epictask id: " + task.getId() + ": loaded");
+
                         } else {
                             taskManager.createTask(task);
+                            System.out.println("task id: " + task.getId() + ": loaded");
+
                         }
                     } else {
                         isTask = false;
@@ -79,7 +86,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         } else if (taskManager.getSubtasks().stream().filter(x -> x.getId() == id).findFirst().isPresent()) {
             task = taskManager.getSubtasks().stream().filter(x -> x.getId() == id).findFirst().get();
         }
-
         return task;
     }
 
@@ -106,21 +112,27 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     static Task fromString(String value) {
         List<String> tasks = List.of(value.split(","));
-        /////
-        LocalDateTime localDateTime = LocalDateTime.now();
-        Duration duration =Duration.between(localDateTime, localDateTime.minusDays(15));
 
-        ////
         Task newTask;
+        Optional<LocalDateTime> startDateTime = Optional.of(LocalDateTime.parse(tasks.get(5), Task.getFormatter()));
+        Optional<Integer> duration = Optional.of(Integer.parseInt(tasks.get(6)));
+//4,SUBTASK,Выучить стихотворение Лермонтова,NEW,Тучи,3,2022-08-08 22:56,5
+
         if (tasks.get(1).equals(TaskType.TASK.name())) {
-            newTask = new Task(tasks.get(2), tasks.get(4), tasks.get(3), Integer.parseInt(tasks.get(0)),localDateTime, duration);
+            newTask = new Task(tasks.get(2), tasks.get(4), tasks.get(3),
+                    Integer.parseInt(tasks.get(0)),
+                   startDateTime.orElse(null), duration.orElse(null));
+
             return newTask;
         } else if (tasks.get(1).equals(TaskType.EPIC.name())) {
-            newTask = new EpicTask(tasks.get(2), tasks.get(4), tasks.get(3), Integer.parseInt(tasks.get(0)));
+            newTask = new EpicTask(tasks.get(2), tasks.get(4), tasks.get(3), Integer.parseInt(tasks.get(0)),
+                    startDateTime.orElse(null), duration.orElse(null));
+
             return newTask;
         } else if (tasks.get(1).equals(TaskType.SUBTASK.name())) {
-            newTask = new SubTask(tasks.get(2), tasks.get(4), tasks.get(3), Integer.parseInt(tasks.get(5)),
-                    Integer.parseInt(tasks.get(0)));
+            newTask = new SubTask( tasks.get(2), tasks.get(4), tasks.get(3), Integer.parseInt(tasks.get(7)),
+                    Integer.parseInt(tasks.get(0)), startDateTime.orElse(null), duration.orElse(null));
+
             return newTask;
         }
 
@@ -132,7 +144,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
         List<String> stringList = new ArrayList<>();
 
-        stringList.add("id,type,name,status,description,epic");
+        stringList.add("id,type,name,status,description,epic, startDateTime, duration");
         appendTasksFromCollection(stringList, super.getTasks());
         appendTasksFromCollection(stringList, super.getEpics());
         appendTasksFromCollection(stringList, super.getSubtasks());

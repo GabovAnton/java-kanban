@@ -7,6 +7,8 @@ import tasks.TaskStatus;
 import tasks.SubTask;
 import tasks.Task;
 
+import java.time.LocalDateTime;
+
 public class Main {
 
 
@@ -14,35 +16,39 @@ public class Main {
 
         TaskManager taskManager = Managers.getDefault();
         InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
-        Task task1 = new Task("Посмотреть сериал", null, TaskStatus.NEW.toString());
+        Task task1 = new Task("Посмотреть сериал", null, TaskStatus.NEW.toString(),
+                LocalDateTime.now(), 15);
 
-        Task task2 = new Task("Послушать музыку", null, TaskStatus.IN_PROGRESS.toString());
+        Task task2 = new Task("Послушать музыку", null, TaskStatus.IN_PROGRESS.toString(),
+                LocalDateTime.now(), 5);
 
         Integer taskId1 = taskManager.createTask(task1);
 
         Integer taskId2 = taskManager.createTask(task2);
 
 
-        EpicTask epicTask1 = new EpicTask("Выучить уроки", "Выполнить все домашние задания");
+        EpicTask epicTask1 = new EpicTask("Выучить уроки", "Выполнить все домашние задания",
+                TaskStatus.IN_PROGRESS.toString(),  LocalDateTime.now(), 5);
 
         Integer epicTaskId1 = taskManager.createEpicTask(epicTask1);
 
         SubTask subTask1 = new SubTask("Выучить стихотворение Лермонтова", "Тучи",
                 TaskStatus.NEW.toString(),
-                epicTaskId1);
+                epicTaskId1, LocalDateTime.now(), 5);
 
         SubTask subTask2 = new SubTask("Выучить стихотворение Есенина", "Письмо к женщине",
                 TaskStatus.NEW.toString(),
-                epicTaskId1);
+                epicTaskId1,  LocalDateTime.now(), 5);
 
         SubTask subTask3 = new SubTask("Выучить стихотворение А. Блока", "Летний вечер", TaskStatus.NEW.toString(),
-                epicTaskId1);
+                epicTaskId1,  LocalDateTime.now(), 5);
 
         taskManager.createSubTask(subTask1);
         taskManager.createSubTask(subTask2);
         taskManager.createSubTask(subTask3);
 
-        EpicTask epicTask2 = new EpicTask("Купить продукты", null);
+        EpicTask epicTask2 = new EpicTask("Купить продукты", null, TaskStatus.IN_PROGRESS.toString(),
+                LocalDateTime.now(), 5 );
 
 
         Integer epicTaskId2 = taskManager.createEpicTask(epicTask2);
