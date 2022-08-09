@@ -27,6 +27,9 @@ public class EpicTask extends Task {
                 this.subTasks.add(SubTaskId);
             }
         }
+        public void  removeAllSubtasks() {
+        this.subTasks.clear();
+        }
 
         @Override
         public String toString () {

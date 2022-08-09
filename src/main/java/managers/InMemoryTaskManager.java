@@ -8,8 +8,7 @@ import tasks.TaskStatus;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.TreeSet;
 
 /**
  * @author A.Gabov
@@ -20,12 +19,18 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, EpicTask> epicTasks = new HashMap<>();
     private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
+    private TreeSet<Task> sortedTasks;
+
 
     private Integer setTaskId() {
         return ++InMemoryTaskManager.taskId;
     }
 
-    public final void setInitialId(int id){
+    public TreeSet<Task> getPrioritizedTasks() {
+        return this.sortedTasks;
+    }
+
+    public final void setInitialId(int id) {
         taskId = id;
     }
 
@@ -45,6 +50,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
     }
+
     private void updateEpicDuration(EpicTask task) {
         task.setDuration(task.getSubTasks().stream().filter(id -> task.getId().equals(id)).mapToInt(subTask ->
                 subTasks.get(subTask).getDuration()).sum());
@@ -82,14 +88,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllSubTasks() {
-        subTasks.forEach((key, value) ->{
-            historyManager.remove(key);
 
+        subTasks.entrySet().stream().map(entry -> entry.getValue().getEpicId()).distinct().forEach(epicId ->
+        {
+            EpicTask epic = epicTasks.get(epicId);
+            epic.removeAllSubtasks();
+            updateEpicDuration(epic);
+            updateEpicStatus(epic);
         });
-        //TODO ИСПРАВИТЬ!!!!!!!!!!!!!!
-        epicTasks.clear();
-      /*  updateEpicDuration(epicTasks.get(subTask.getEpicId()));
-        updateEpicStatus(epicTasks.get(subTask.getEpicId()));*/
+
+        subTasks.forEach((key, value) -> {
+            historyManager.remove(key);
+        });
+        subTasks.clear();
+
 
     }
 
@@ -238,7 +250,6 @@ public class InMemoryTaskManager implements TaskManager {
                 } else {
                     throw new IllegalArgumentException("Provided element 'Tasks.SubTask id' " + subTask.getId() + "  not found");
                 }
-
 
 
             } else {

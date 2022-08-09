@@ -39,7 +39,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             String content = Files.readString(pathToFIle);
             boolean isTask = true;
             int maxId = 0;
-            String[] stringArray = content.split(System.lineSeparator());
+            String[] stringArray = content.split("\\R");
             for (int i = 1; i < stringArray.length; i++) {
                 String str = stringArray[i];
                 if (isTask) {
@@ -116,7 +116,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         Task newTask;
         Optional<LocalDateTime> startDateTime = Optional.of(LocalDateTime.parse(tasks.get(5), Task.getFormatter()));
         Optional<Integer> duration = Optional.of(Integer.parseInt(tasks.get(6)));
-//4,SUBTASK,Выучить стихотворение Лермонтова,NEW,Тучи,3,2022-08-08 22:56,5
 
         if (tasks.get(1).equals(TaskType.TASK.name())) {
             newTask = new Task(tasks.get(2), tasks.get(4), tasks.get(3),
