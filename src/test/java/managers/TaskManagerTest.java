@@ -15,20 +15,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public abstract class TaskManagerTest<T extends TaskManager> {
-    private  T taskManager;
+    private T taskManager;
 
     @BeforeAll
     static void setupTestEnvironment() {
-     //   private InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
+        //   private InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
     }
 
-    public TaskManagerTest(T obj){
+    public TaskManagerTest(T obj) {
         this.taskManager = obj;
     }
 
+    @Test
+    public void CheckIntersection() {
+
+    }
 
     @Test
-    public  void addNewTask() {
+    public void addNewTask() {
         Task task = new Task("Посмотреть сериал", null, TaskStatus.NEW.toString(),
                 LocalDateTime.now(), 15);
 
@@ -43,14 +47,14 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
         assertNotNull(tasks, "Задачи на возвращаются.");
         assertEquals(1, tasks.size(), "Неверное количество задач.");
-       //assertEquals(1, 4, "Неверное количество задач.");
+        //assertEquals(1, 4, "Неверное количество задач.");
         assertEquals(task, tasks.get(0), "Задачи не совпадают.");
     }
 
     @Test
-    public void addEmptyEpicTask(){
+    public void addEmptyEpicTask() {
         EpicTask epicTask = new EpicTask("Выучить уроки", "Выполнить все домашние задания",
-                TaskStatus.IN_PROGRESS.toString(),  LocalDateTime.now(), 5);
+                TaskStatus.IN_PROGRESS.toString(), LocalDateTime.now(), 5);
         final int epicTaskId = taskManager.createEpicTask(epicTask);
 
         final EpicTask savedTask = taskManager.getEpic(epicTaskId);

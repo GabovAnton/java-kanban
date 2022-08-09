@@ -5,10 +5,10 @@ import tasks.SubTask;
 import tasks.Task;
 import tasks.TaskStatus;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeSet;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 /**
  * @author A.Gabov
@@ -19,15 +19,32 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, EpicTask> epicTasks = new HashMap<>();
     private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
-    private TreeSet<Task> sortedTasks;
+    private Map<LocalDateTime, Boolean> sortedTasks = new LinkedHashMap(35064, 0.75f, false);
 
 
     private Integer setTaskId() {
         return ++InMemoryTaskManager.taskId;
     }
 
-    public TreeSet<Task> getPrioritizedTasks() {
+    public Map<LocalDateTime, Boolean> getPrioritizedTasks() {
         return this.sortedTasks;
+    }
+
+    public void fillSortedTaskTimeSlots() {
+        LocalDateTime startDateTime = LocalDateTime.now();
+        while (startDateTime.isBefore(LocalDateTime.now().plusYears(1))) {
+            sortedTasks.put(startDateTime, false);
+            startDateTime = startDateTime.plusMinutes(15);
+        }
+    }
+
+    public Boolean isTaskOverlapping(LocalDateTime start, LocalDateTime end) {
+        return
+                sortedTasks.entrySet()
+                        .stream()
+                        .filter(x -> x.getKey().isEqual(start) ||
+                                (x.getKey().isAfter(start) && x.getKey().isBefore(end)) ||
+                                x.getKey().isEqual(end)).anyMatch(y -> y.getValue().equals(true));
     }
 
     public final void setInitialId(int id) {
@@ -89,7 +106,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteAllSubTasks() {
 
-        subTasks.entrySet().stream().map(entry -> entry.getValue().getEpicId()).distinct().forEach(epicId ->
+        subTasks.values().stream().map(SubTask::getEpicId).distinct().forEach(epicId ->
         {
             EpicTask epic = epicTasks.get(epicId);
             epic.removeAllSubtasks();
@@ -97,9 +114,7 @@ public class InMemoryTaskManager implements TaskManager {
             updateEpicStatus(epic);
         });
 
-        subTasks.forEach((key, value) -> {
-            historyManager.remove(key);
-        });
+        subTasks.forEach((key, value) -> historyManager.remove(key));
         subTasks.clear();
 
 

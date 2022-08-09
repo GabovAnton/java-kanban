@@ -4,7 +4,10 @@ import tasks.EpicTask;
 import tasks.SubTask;
 import tasks.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author A.Gabov
@@ -56,4 +59,11 @@ public interface TaskManager {
     List<SubTask> getAllSubTasksByEpic(EpicTask epic);
 
     void  setInitialId(int maxId);
+
+    void fillSortedTaskTimeSlots();
+
+    Map<LocalDateTime,Boolean> getPrioritizedTasks();
+
+
+    Boolean isTaskOverlapping(LocalDateTime startTime, LocalDateTime endTime);
 }

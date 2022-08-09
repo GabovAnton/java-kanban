@@ -7,7 +7,9 @@ import tasks.TaskStatus;
 import tasks.SubTask;
 import tasks.Task;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Period;
 
 public class Main {
 
@@ -15,9 +17,10 @@ public class Main {
     public static void main(String[] args) {
 
         TaskManager taskManager = Managers.getDefault();
+        taskManager.fillSortedTaskTimeSlots();
         InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
         Task task1 = new Task("Посмотреть сериал", null, TaskStatus.NEW.toString(),
-                LocalDateTime.now(), 15);
+                LocalDateTime.now().plusMonths(2), 155);
 
         Task task2 = new Task("Послушать музыку", null, TaskStatus.IN_PROGRESS.toString(),
                 LocalDateTime.now(), 5);
@@ -103,7 +106,8 @@ public class Main {
         System.out.println("*****Печатаем все ссылки в CustomLinkedList  после удаления эпика '2'******");
         inMemoryHistoryManager.printHistoryLinks();
         inMemoryHistoryManager.getHistory().forEach(System.out::println);
-
+        System.out.println("tasks timeslot size: " + taskManager.getPrioritizedTasks().size());
+    taskManager.isTaskOverlapping(task1.getStartTime(),task1.getEndTime());
 
     }
 
