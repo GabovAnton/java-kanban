@@ -5,10 +5,9 @@ import tasks.SubTask;
 import tasks.Task;
 import tasks.TaskStatus;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author A.Gabov
@@ -19,32 +18,59 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, EpicTask> epicTasks = new HashMap<>();
     private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
-    private Map<LocalDateTime, Boolean> sortedTasks = new LinkedHashMap(35064, 0.75f, false);
-
+    private Map<Map<LocalDateTime, LocalDateTime>, Boolean> schedule = new LinkedHashMap(35064, 0.75f, false);
 
     private Integer setTaskId() {
         return ++InMemoryTaskManager.taskId;
     }
 
-    public Map<LocalDateTime, Boolean> getPrioritizedTasks() {
-        return this.sortedTasks;
+    public Map<Map<LocalDateTime, LocalDateTime>, Boolean> getPrioritizedTasks() {
+        return this.schedule;
     }
 
     public void fillSortedTaskTimeSlots() {
-        LocalDateTime startDateTime = LocalDateTime.now();
+        LocalDateTime startDateTime = LocalDateTime.now().withMinute(0);
         while (startDateTime.isBefore(LocalDateTime.now().plusYears(1))) {
-            sortedTasks.put(startDateTime, false);
+            schedule.put(Map.of(startDateTime, startDateTime.plusMinutes(15)), false);
             startDateTime = startDateTime.plusMinutes(15);
         }
     }
 
     public Boolean isTaskOverlapping(LocalDateTime start, LocalDateTime end) {
-        return
-                sortedTasks.entrySet()
-                        .stream()
-                        .filter(x -> x.getKey().isEqual(start) ||
-                                (x.getKey().isAfter(start) && x.getKey().isBefore(end)) ||
-                                x.getKey().isEqual(end)).anyMatch(y -> y.getValue().equals(true));
+        //Формируем первый интервал вхождения
+        LocalDateTime firstEntry = getSearchEntry(start);
+        LocalDateTime lastEntry = getSearchEntry(end);
+
+        //Ищем первое вхождение и далее с интервалом 15 минут, пока не найдем вхождение от начала до конца задачи
+        AtomicReference<Boolean> isExist = new AtomicReference<>(false);
+        while (firstEntry.isBefore(lastEntry) || firstEntry.isEqual(lastEntry)) {
+            LocalDateTime finalFirstEntry = firstEntry;
+            schedule.entrySet()
+                    .stream().filter(x -> x.getKey().equals(Map.of(finalFirstEntry, finalFirstEntry.plusMinutes(15))))
+                    .findFirst().ifPresent(y -> isExist.set(y.getValue()));
+            if (isExist.get()) {
+                return true;
+            } else {
+                firstEntry = firstEntry.plusMinutes(15);
+            }
+        }
+        return isExist.get();
+    }
+
+    private LocalDateTime getSearchEntry(LocalDateTime date) {
+        LocalDateTime firstEntry = null;
+
+        if (date.getMinute() <= 15) {
+            //firstEntry = start.minus(start.getMinute(),ChronoUnit.MINUTES);
+            firstEntry = date.withMinute(0);
+        } else if (date.getMinute() >= 15 && date.getMinute() < 30) {
+            firstEntry = date.withMinute(15);
+        } else if (date.getMinute() >= 30 && date.getMinute() < 45) {
+            firstEntry = date.withMinute(30);
+        } else if (date.getMinute() >= 45 && date.getMinute() < 60) {
+            firstEntry = date.withMinute(45);
+        }
+        return firstEntry;
     }
 
     public final void setInitialId(int id) {

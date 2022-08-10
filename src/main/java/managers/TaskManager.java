@@ -62,7 +62,7 @@ public interface TaskManager {
 
     void fillSortedTaskTimeSlots();
 
-    Map<LocalDateTime,Boolean> getPrioritizedTasks();
+    Map<Map<LocalDateTime,LocalDateTime>, Boolean> getPrioritizedTasks();
 
 
     Boolean isTaskOverlapping(LocalDateTime startTime, LocalDateTime endTime);
