@@ -1,4 +1,3 @@
-import managers.FileBackedTasksManager;
 import managers.InMemoryHistoryManager;
 import managers.Managers;
 import managers.TaskManager;
@@ -7,9 +6,7 @@ import tasks.TaskStatus;
 import tasks.SubTask;
 import tasks.Task;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Period;
 
 public class Main {
 
@@ -17,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
 
         TaskManager taskManager = Managers.getDefault();
-        taskManager.fillSortedTaskTimeSlots();
+        taskManager.fillTaskTimeSlots();
         InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
         Task task1 = new Task("Посмотреть сериал", null, TaskStatus.NEW.toString(),
                 LocalDateTime.now().plusMonths(2), 155);

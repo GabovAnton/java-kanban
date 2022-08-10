@@ -18,6 +18,11 @@ public class Task {
 
 
     private Integer duration;
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
     private LocalDateTime startTime;
 
     public static final DateTimeFormatter getFormatter() {
