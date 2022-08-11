@@ -6,6 +6,7 @@ import tasks.Task;
 import tasks.TaskStatus;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -13,20 +14,19 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author A.Gabov
  */
 public class InMemoryTaskManager implements TaskManager {
+    static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static Integer taskId = 0;
+    private static Map<String, Boolean> schedule =
+            new LinkedHashMap(35064, 0.75f, false);
     public final HistoryManager historyManager = Managers.getDefaultHistory();
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, EpicTask> epicTasks = new HashMap<>();
     private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
+    private TreeSet<Task> sortedTask = new TreeSet(Comparator.comparing(Task::getStartTime));
 
-    public Map<Map<LocalDateTime, LocalDateTime>, Boolean> getSchedule() {
+    public Map<String, Boolean> getSchedule() {
         return schedule;
     }
-
-    private Map<Map<LocalDateTime, LocalDateTime>, Boolean> schedule =
-            new LinkedHashMap(35064, 0.75f, false);
-
-    private TreeSet<Task> sortedTask = new TreeSet(Comparator.comparing(Task::getStartTime));
 
     private Integer setTaskId() {
         return ++InMemoryTaskManager.taskId;
@@ -50,10 +50,18 @@ public class InMemoryTaskManager implements TaskManager {
 
         while (startDateTime.isBefore(endDateTime) || startDateTime.isEqual(endDateTime)) {
 
-
-            schedule.put(Map.of(startDateTime, startDateTime.plusMinutes(15)), false);
+            schedule.put(buildScheduleRangeDateFormat(startDateTime), false);
             startDateTime = startDateTime.plusMinutes(15);
         }
+    }
+
+    private String buildScheduleRangeDateFormat(LocalDateTime startDateTime) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(startDateTime.format(formatter));
+        sb.append("_");
+        sb.append(startDateTime.plusMinutes(15).format(formatter));
+
+        return sb.toString();
     }
 
     private void updateSchedule(LocalDateTime start, LocalDateTime end, boolean flag) {
@@ -66,18 +74,22 @@ public class InMemoryTaskManager implements TaskManager {
             LocalDateTime finalSearchOldStart = searchOldStart;
             LocalDateTime finalSearchOldStart1 = searchOldStart;
 
-          Boolean test =  schedule.entrySet().stream().filter(x -> x.equals(Map.of(finalSearchOldStart, finalSearchOldStart1.plusMinutes(15))))
-                    .findFirst().isPresent();
+            //////////////////////////////////////
+            String searchString = buildScheduleRangeDateFormat(finalSearchOldStart);
 
-            schedule.entrySet().stream().filter(x -> x.equals(Map.of(finalSearchOldStart, finalSearchOldStart1.plusMinutes(15))))
-                    .findFirst().ifPresent(y -> y.setValue(flag));
+            //   boolean testtt= schedule.entrySet().stream().filter(x ->x.getKey().equals(searchString)).findFirst().isPresent();
+
+
+            schedule.entrySet()
+                    .stream()
+                    .filter(x -> x.getKey().equals(searchString)).findFirst().ifPresent(y -> y.setValue(flag));
             searchOldStart = searchOldStart.plusMinutes(15);
         }
 
 
     }
 
-    public Boolean isTaskOverlapping(LocalDateTime start, LocalDateTime end) {
+    public Boolean isTaskIntersectsExistingRange(LocalDateTime start, LocalDateTime end) {
         //Формируем первый интервал вхождения
         LocalDateTime firstEntry = getSearchEntry(start);
         LocalDateTime lastEntry = getSearchEntry(end);
@@ -87,7 +99,7 @@ public class InMemoryTaskManager implements TaskManager {
         while (firstEntry.isBefore(lastEntry) || firstEntry.isEqual(lastEntry)) {
             LocalDateTime finalFirstEntry = firstEntry;
             schedule.entrySet()
-                    .stream().filter(x -> x.getKey().equals(Map.of(finalFirstEntry, finalFirstEntry.plusMinutes(15))))
+                    .stream().filter(x -> x.getKey().equals(finalFirstEntry.toString() + finalFirstEntry.plusMinutes(15)))
                     .findFirst().ifPresent(y -> isExist.set(y.getValue()));
             if (isExist.get()) {
                 return true;
@@ -139,7 +151,6 @@ public class InMemoryTaskManager implements TaskManager {
         Integer duration = task.getSubTasks().stream().filter(id -> task.getId().equals(id)).mapToInt(subTask ->
                 subTasks.get(subTask).getDuration()).sum();
         task.setDuration(duration);
-
 
         task.getSubTasks().stream()
                 .filter(id -> task.getId().equals(id))
@@ -274,13 +285,18 @@ public class InMemoryTaskManager implements TaskManager {
             if (epicTasks.containsKey(task.getEpicId())) {
                 if (task.getId() == null) {
                     task.setId(setTaskId());
-
                 }
-                (epicTasks.get(task.getEpicId())).addSubTasks(task.getId());
-                subTasks.put(task.getId(), task);
-                updateEpicDurationEndStart(epicTasks.get(task.getEpicId()));
-                updateEpicStatus(epicTasks.get(task.getEpicId()));
-                updateSchedule(task.getStartTime(), task.getEndTime(), true);
+
+                if (!isTaskIntersectsExistingRange(task.getStartTime(), task.getEndTime())) {
+                    (epicTasks.get(task.getEpicId())).addSubTasks(task.getId());
+                    subTasks.put(task.getId(), task);
+                    updateEpicDurationEndStart(epicTasks.get(task.getEpicId()));
+                    updateEpicStatus(epicTasks.get(task.getEpicId()));
+                    updateSchedule(task.getStartTime(), task.getEndTime(), true);
+                } else {
+                    throw new IllegalArgumentException("Provided date range for subTask is intersects with exiting one");
+                }
+
 
             } else {
                 throw new IllegalArgumentException("Provided element 'Epic task id' " + task.getEpicId() +
@@ -296,16 +312,21 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Integer createTask(Task task) {
         if (task != null) {
-            if (task.getId() == null) {
-                task.setId(setTaskId());
-            }
-            if (!tasks.containsKey(task.getId())) {
-                tasks.put(task.getId(), task);
-                addTaskToSortedTreeSet(task);
-                updateSchedule(task.getStartTime(), task.getEndTime(), true);
+            if (!isTaskIntersectsExistingRange(task.getStartTime(), task.getEndTime())) {
+                if (task.getId() == null) {
+                    task.setId(setTaskId());
+                }
+
+                if (!tasks.containsKey(task.getId())) {
+                    tasks.put(task.getId(), task);
+                    addTaskToSortedTreeSet(task);
+                    updateSchedule(task.getStartTime(), task.getEndTime(), true);
+                } else {
+                    throw new IllegalArgumentException("Provided object 'task' " + task.getId() + "  " +
+                            "has been already stored in manager with same id");
+                }
             } else {
-                throw new IllegalArgumentException("Provided object 'task' " + task.getId() + "  " +
-                        "has been already stored in manager with same id");
+                throw new IllegalArgumentException("Provided date range for Task is intersects with exiting one");
             }
             return task.getId();
         } else {
@@ -333,9 +354,14 @@ public class InMemoryTaskManager implements TaskManager {
                 } else if (oldTask.getSubTasks() == null && task.getSubTasks() != null) {
                     oldTask.getSubTasks().addAll(task.getSubTasks());
                     task.getSubTasks()
-                            .forEach(x ->
+                            .forEach(x -> {
+                                if (!isTaskIntersectsExistingRange(subTasks.get(x).getStartTime(), subTasks.get(x).getEndTime())) {
                                     updateSchedule(subTasks.get(x).getStartTime(), subTasks.get(x).getEndTime(),
-                                            true));
+                                            true);
+                                } else {
+                                    throw new IllegalArgumentException("Provided date range for subTask is intersects with exiting one");
+                                }
+                            });
                 }
                 updateEpicStatus(task);
                 updateEpicDurationEndStart(task);
@@ -352,28 +378,34 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubTask(SubTask subTask) {
         if (subTask != null) {
-            if (epicTasks.containsKey(subTask.getEpicId())) {
-                if (subTasks.containsKey(subTask.getId())) {
-                    SubTask oldTask = subTasks.get(subTask.getId());
-                    oldTask.setName(subTask.getName());
-                    oldTask.setDescription(subTask.getDescription());
-                    oldTask.setStatus(subTask.getStatus());
-                    oldTask.setEpicId(subTask.getEpicId());
-                    removeTaskFromSortedTreeSet(oldTask);
-                    addTaskToSortedTreeSet(subTask);
-                    updateSchedule(oldTask.getStartTime(), oldTask.getEndTime(),
-                            false);
-                    updateSchedule(subTask.getStartTime(), subTask.getEndTime(),
-                            true);
+            if (!isTaskIntersectsExistingRange(subTask.getStartTime(), subTask.getEndTime())) {
+
+                if (epicTasks.containsKey(subTask.getEpicId())) {
+                    if (subTasks.containsKey(subTask.getId())) {
+                        SubTask oldTask = subTasks.get(subTask.getId());
+                        oldTask.setName(subTask.getName());
+                        oldTask.setDescription(subTask.getDescription());
+                        oldTask.setStatus(subTask.getStatus());
+                        oldTask.setEpicId(subTask.getEpicId());
+                        removeTaskFromSortedTreeSet(oldTask);
+                        addTaskToSortedTreeSet(subTask);
+                        updateSchedule(oldTask.getStartTime(), oldTask.getEndTime(),
+                                false);
+                        updateSchedule(subTask.getStartTime(), subTask.getEndTime(),
+                                true);
+                    } else {
+                        throw new IllegalArgumentException("Provided element 'Tasks.SubTask id' " + subTask.getId() + "  not found");
+                    }
+
+
                 } else {
-                    throw new IllegalArgumentException("Provided element 'Tasks.SubTask id' " + subTask.getId() + "  not found");
+                    throw new IllegalArgumentException("Provided element 'Tasks.SubTask' contains epicID witch doesn't belongs " +
+                            "to tasks Array " + subTask.getId() + "  not found");
                 }
-
-
             } else {
-                throw new IllegalArgumentException("Provided element 'Tasks.SubTask' contains epicID witch doesn't belongs " +
-                        "to tasks Array " + subTask.getId() + "  not found");
+                throw new IllegalArgumentException("Provided date range for subTask is intersects with exiting one");
             }
+
         } else {
             throw new NullPointerException("Tasks.Task object cannot be null");
         }
@@ -382,18 +414,25 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
         if (task != null) {
-            if (tasks.containsKey(task.getId())) {
-                Task oldTask = tasks.get(task.getId());
-                oldTask.setName(task.getName());
-                oldTask.setDescription(task.getDescription());
-                oldTask.setStatus(task.getStatus());
-                removeTaskFromSortedTreeSet(oldTask);
-                addTaskToSortedTreeSet(task);
-                updateSchedule(oldTask.getStartTime(), oldTask.getEndTime(), false);
-                updateSchedule(task.getStartTime(), task.getEndTime(), true);
+            if (!isTaskIntersectsExistingRange(task.getStartTime(), task.getEndTime())) {
+
+                if (tasks.containsKey(task.getId())) {
+                    Task oldTask = tasks.get(task.getId());
+                    oldTask.setName(task.getName());
+                    oldTask.setDescription(task.getDescription());
+                    oldTask.setStatus(task.getStatus());
+                    removeTaskFromSortedTreeSet(oldTask);
+                    addTaskToSortedTreeSet(task);
+                    updateSchedule(oldTask.getStartTime(), oldTask.getEndTime(), false);
+                    updateSchedule(task.getStartTime(), task.getEndTime(), true);
+                } else {
+                    throw new IllegalArgumentException("Provided element 'task ID' " + task.getId() + "  not found");
+                }
             } else {
-                throw new IllegalArgumentException("Provided element 'task ID' " + task.getId() + "  not found");
+                throw new IllegalArgumentException("Provided date range for task is intersects with exiting one");
+
             }
+
         } else {
             throw new NullPointerException("Tasks.Task object cannot be null");
         }
@@ -493,7 +532,6 @@ public class InMemoryTaskManager implements TaskManager {
 
         if (epic != null) {
             historyManager.add(epic);
-
             List<SubTask> subTasks = new ArrayList<>();
             epic.getSubTasks().forEach(id -> {
                 subTasks.add(this.subTasks.get(id));

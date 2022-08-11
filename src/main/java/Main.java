@@ -104,7 +104,7 @@ public class Main {
         inMemoryHistoryManager.printHistoryLinks();
         inMemoryHistoryManager.getHistory().forEach(System.out::println);
         System.out.println("tasks timeslot size: " + taskManager.getPrioritizedTasks().size());
-    taskManager.isTaskOverlapping(task1.getStartTime(),task1.getEndTime());
+    taskManager.isTaskIntersectsExistingRange(task1.getStartTime(),task1.getEndTime());
 
     }
 

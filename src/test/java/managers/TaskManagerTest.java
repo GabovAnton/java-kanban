@@ -1,6 +1,7 @@
 package managers;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
@@ -14,15 +15,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class TaskManagerTest<T extends TaskManager> {
     private T taskManager;
 
-    @BeforeAll
-    static void setupTestEnvironment() {
-       // taskManager.fillTaskTimeSlots();
+    @BeforeEach
+       void setupTestEnvironment() {
+        taskManager.fillTaskTimeSlots();
         //   private InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
     }
 
@@ -75,7 +75,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
 @Test
     public void testSchedule (){
-    taskManager.fillTaskTimeSlots();
 
     Task task1 = new Task("Посмотреть сериал", null, TaskStatus.NEW.toString(),
             LocalDateTime.now(), 15);
@@ -132,18 +131,17 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     assertEquals(3, subTasks.size(), "Неверное количество задач.");
 
 
-    Map<Map<LocalDateTime, LocalDateTime>, Boolean>  schedule =
-            (Map<Map<LocalDateTime, LocalDateTime>, Boolean>) taskManager.getSchedule();
+
 
     TreeSet<Task> prioritizedTasks  = taskManager.getPrioritizedTasks();
 
     assertNotNull(prioritizedTasks, "Массив сортированных задач пуст");
-    assertEquals(prioritizedTasks.size() > 0, "Массив сортированных задач пуст");
+    assertTrue(prioritizedTasks.size() > 0, "Массив сортированных задач пуст");
 
-    assertNotNull(schedule, "Массив задач в расписании пуст");
+   assertNotNull(taskManager.getSchedule(), "Массив задач в расписании пуст");
 
+    assertTrue(taskManager.getSchedule().size()>0, "Массив задач в расписании пуст");
 
-    assertEquals(schedule.size()>0, "Массив задач в расписании пуст");
 
 }
 }

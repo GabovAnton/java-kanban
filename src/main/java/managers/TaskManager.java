@@ -6,6 +6,7 @@ import tasks.Task;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 /**
@@ -64,7 +65,7 @@ public interface TaskManager {
     TreeSet getPrioritizedTasks();
 
 
-    Boolean isTaskOverlapping(LocalDateTime startTime, LocalDateTime endTime);
+    Boolean isTaskIntersectsExistingRange(LocalDateTime startTime, LocalDateTime endTime);
 
-    Object getSchedule();
+    Map<String, Boolean> getSchedule();
 }
