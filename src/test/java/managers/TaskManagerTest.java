@@ -432,7 +432,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     public void testShouldReturnExceptionWhenAddTaskWithStartBeforeSchedulePeriod() {
         Task task1 = new Task("Посмотреть сериал", null, TaskStatus.NEW.toString(),
-                startSchedulePeriod.minusYears(yearsBeforeStart).minusMinutes(16), 16);
+                startSchedulePeriod.minusYears(10).minusMinutes(16), 16);
 
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> taskManager.createTask(task1));

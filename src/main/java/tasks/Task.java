@@ -41,8 +41,8 @@ public class Task {
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
-        this.startTime = null;
-        this.duration = null;
+        this.startTime = Optional.empty();
+        this.duration = Optional.empty();
         this.status = TaskStatus.NEW.toString();
     }
 

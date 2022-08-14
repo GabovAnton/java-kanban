@@ -4,7 +4,7 @@ import tasks.EpicTask;
 import tasks.SubTask;
 import tasks.Task;
 import tasks.TaskStatus;
-import utilityclasses.ScheduleDateTimeCell;
+import util.ScheduleDateTimeCell;
 
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -96,21 +96,22 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void updateSchedule(Optional<LocalDateTime> start, Optional<LocalDateTime> end, boolean flag) {
-        if (start.isPresent() && end.isPresent()) {
-            LocalDateTime searchStart = ScheduleDateTimeCell.constructDateTime(start.get());
-            LocalDateTime searchEnd = ScheduleDateTimeCell.constructDateTime(end.get());
+        if (start.isEmpty() || end.isEmpty()) {
+            return;
+        }
+        LocalDateTime searchStart = ScheduleDateTimeCell.constructDateTime(start.get());
+        LocalDateTime searchEnd = ScheduleDateTimeCell.constructDateTime(end.get());
 
-            verifyIfTaskWithinSchedulePeriod(searchStart, searchEnd);
+        verifyIfTaskWithinSchedulePeriod(searchStart, searchEnd);
 
 
-            while (searchStart.isBefore(searchEnd) || searchStart.isEqual(searchEnd)) {
+        while (searchStart.isBefore(searchEnd) || searchStart.isEqual(searchEnd)) {
 
-                schedule.entrySet()
-                        .stream()
-                        .filter(x -> x.getKey().equals(new ScheduleDateTimeCell(start.get())))
-                        .findFirst().ifPresent(y -> y.setValue(flag));
-                searchStart = searchStart.plusMinutes(15);
-            }
+            schedule.entrySet()
+                    .stream()
+                    .filter(x -> x.getKey().equals(new ScheduleDateTimeCell(start.get())))
+                    .findFirst().ifPresent(y -> y.setValue(flag));
+            searchStart = searchStart.plusMinutes(15);
         }
 
 
@@ -118,7 +119,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     public Boolean isTaskIntersectsExistingRange(Optional<LocalDateTime> start, Optional<LocalDateTime> end) {
         //Формируем первый интервал вхождения
-        if (start.isPresent() && end.isPresent()) {
+
+
+        if (!start.isEmpty() && !end.isEmpty()) {
             LocalDateTime firstEntry = ScheduleDateTimeCell.constructDateTime(start.get());
             LocalDateTime lastEntry = ScheduleDateTimeCell.constructDateTime(end.get());
 
@@ -356,16 +359,15 @@ public class InMemoryTaskManager implements TaskManager {
                 task.setId(setTaskId());
             }
 
-            Optional<LocalDateTime> start = task.getStartTime().isPresent() ? task.getStartTime() : Optional.empty();
+            Optional<LocalDateTime> start = task.getStartTime().isEmpty() ? Optional.empty() : task.getStartTime();
             Optional<LocalDateTime> end = task.getDuration().isEmpty() ? Optional.empty() : task.getEndTime();
 
             if (!isTaskIntersectsExistingRange(start, end)) {
                 if (!tasks.containsKey(task.getId())) {
                     tasks.put(task.getId(), task);
                     addTaskToSortedTreeSet(task);
-                    if ((start.isPresent()) && (end.isPresent())) {
-                        updateSchedule(task.getStartTime(), task.getEndTime(), true);
-                    }
+                        updateSchedule(start, end, true);
+
                 } else {
                     throw new IllegalArgumentException("Provided object 'task' " + task.getId() + "  " +
                             "has been already stored in manager with same id");

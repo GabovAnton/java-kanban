@@ -1,6 +1,6 @@
 package managers;
 
-import Exceptions.ManagerSaveException;
+import exceptions.ManagerSaveException;
 import tasks.EpicTask;
 import tasks.SubTask;
 import tasks.Task;
@@ -28,8 +28,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     Path pathToFIle = HOME_DIRECTORY.resolve(ARCHIVE_NAME);
 
-    public static void main(String[] args) {
-    }
 
     public void setPathToFIle(Path pathToFIle) {
         this.pathToFIle = pathToFIle;

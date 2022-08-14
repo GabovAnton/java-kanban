@@ -3,7 +3,7 @@ package managers;
 import tasks.EpicTask;
 import tasks.SubTask;
 import tasks.Task;
-import utilityclasses.ScheduleDateTimeCell;
+import util.ScheduleDateTimeCell;
 
 import java.time.LocalDateTime;
 import java.time.Period;
