@@ -3,10 +3,13 @@ package managers;
 import tasks.EpicTask;
 import tasks.SubTask;
 import tasks.Task;
+import utilityclasses.ScheduleDateTimeCell;
 
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeSet;
 
 /**
@@ -58,14 +61,14 @@ public interface TaskManager {
 
     List<SubTask> getAllSubTasksByEpic(EpicTask epic);
 
-    void  setInitialId(int maxId);
+    void setInitialId(int maxId);
 
-    void fillTaskTimeSlots();
+    void fillTaskTimeSlots(LocalDateTime start, Period beforeStart, Period afterEnd);
 
     TreeSet getPrioritizedTasks();
 
 
-    Boolean isTaskIntersectsExistingRange(LocalDateTime startTime, LocalDateTime endTime);
+    Boolean isTaskIntersectsExistingRange(Optional<LocalDateTime> start, Optional<LocalDateTime> end);
 
-    Map<String, Boolean> getSchedule();
+    Map<ScheduleDateTimeCell, Boolean> getSchedule();
 }

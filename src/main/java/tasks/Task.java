@@ -1,10 +1,10 @@
 package tasks;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author A.Gabov
@@ -14,16 +14,14 @@ public class Task {
     private String description;
     private Integer id;
     private String status;
+    private Optional<LocalDateTime> startTime;
 
-
-
-    private Integer duration;
+    private Optional<Integer> duration;
 
     public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
+        this.startTime = Optional.ofNullable(startTime);
     }
 
-    private LocalDateTime startTime;
 
     public static final DateTimeFormatter getFormatter() {
         return formatter;
@@ -31,40 +29,58 @@ public class Task {
 
     static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+    public Task(Task anotherTask) {
+        this.name = anotherTask.name;
+        this.description = anotherTask.description;
+        this.status = anotherTask.status;
+        this.startTime = anotherTask.startTime;
+        this.duration = anotherTask.duration;
+        this.id = anotherTask.id;
+    }
+
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
+        this.startTime = null;
+        this.duration = null;
+        this.status = TaskStatus.NEW.toString();
     }
 
     public Task(String name, String description, String status, LocalDateTime startTime, Integer duration) {
         this.name = name;
         this.description = description;
         this.status = status;
-        this.startTime = startTime;
-        this.duration = duration;
+        this.startTime = Optional.ofNullable(startTime);
+        this.duration = Optional.ofNullable(duration);
     }
+
     public Task(String name, String description, String status, int id, LocalDateTime startTime, Integer duration) {
         this.name = name;
         this.description = description;
         this.status = status;
         this.id = id;
-        this.startTime = startTime;
-        this.duration = duration;
+        this.startTime = Optional.ofNullable(startTime);
+        this.duration = Optional.ofNullable(duration);
     }
 
-    public Integer getDuration() {
+    public Optional<Integer> getDuration() {
         return duration;
     }
 
-    public void setDuration(Integer duration) {
+    public void setDuration(Optional<Integer> duration) {
         this.duration = duration;
     }
 
-    public LocalDateTime getStartTime() {
+    public Optional<LocalDateTime> getStartTime() {
         return startTime;
     }
-    public LocalDateTime getEndTime(){
-        return this.startTime.plus(Duration.ofMinutes(this.duration));
+
+    public Optional<LocalDateTime> getEndTime() {
+
+        return (startTime.isPresent() && duration.isPresent()) ?
+                Optional.ofNullable(this.startTime.get().plus(Duration.ofMinutes(this.duration.get()))) :
+                Optional.empty();
+
     }
 
     public String getName() {
@@ -124,21 +140,21 @@ public class Task {
 
     @Override
     public String toString() {
+
         StringBuilder sb = new StringBuilder();
-        sb.append(getId().toString()).append(",");
+        sb.append(getId() != null ? getId().toString() : "' '").append(",");
         sb.append(TaskType.TASK).append(",");
         sb.append(getName()).append(",");
         sb.append(getStatus()).append(",");
-        sb.append(getDescription()!= null ? getDescription() : "' '").append(",");
-        sb.append(getStartTime().format(formatter)).append(",");
-        sb.append(getDuration()!= null ?  getDuration() : "' '");
+        sb.append(getDescription() != null ? getDescription() : "' '").append(",");
+        sb.append(getStartTime() != null ? getStartTime().isPresent() ? getStartTime().get().format(formatter) : "' '" : "' '").append(",");
+        ;
+        sb.append(getDuration() != null ? getDuration().isPresent() ? getDuration().get() : "' '" : "' '").append(",");
+        ;
+
         return sb.toString();
 
-      /*  return getId().toString() + "," + TaskType.TASK + "," + getName() + ","  +  getStatus() + "," +
-                (getDescription()!= null ? getDescription() : "' '") + "," +
-                (getStartTime().format(formatter)!= null ? getStartTime().format(formatter) : "' '") + "," +
-                ( getDuration()!= null ?  getDuration() : "' '");*/
-
     }
+
 
 }
