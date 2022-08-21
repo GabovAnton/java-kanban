@@ -5,9 +5,14 @@ package managers;
  */
 public class Managers {
 
-    public static TaskManager getDefault() {
-        return new InMemoryTaskManager();
+    static final TaskManager HTTPTaskManager = new HTTPTaskManager("http://localhost:8078");
 
+    public static TaskManager getDefault() {
+        return HTTPTaskManager;
+    }
+
+    public static TaskManager getHTTPTaskManager() {
+        return HTTPTaskManager;
     }
 
     public static HistoryManager getDefaultHistory() {

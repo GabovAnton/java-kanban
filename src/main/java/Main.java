@@ -1,20 +1,14 @@
-import managers.InMemoryHistoryManager;
-import managers.Managers;
-import managers.TaskManager;
-import tasks.EpicTask;
-import tasks.SubTask;
-import tasks.Task;
-import tasks.TaskStatus;
+import util.KVServer;
 
-import java.time.LocalDateTime;
-import java.time.Period;
+import java.io.IOException;
 
 public class Main {
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-
+        KVServer kvServer = new KVServer();
+        kvServer.start();
 
     }
 

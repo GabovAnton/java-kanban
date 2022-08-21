@@ -5,6 +5,7 @@ import tasks.EpicTask;
 import tasks.SubTask;
 import tasks.Task;
 import tasks.TaskType;
+import util.ScheduleDateTimeCell;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,10 +13,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author A.Gabov
@@ -25,17 +23,21 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             .getPath("");
     final static String ARCHIVE_NAME = "canban.csv";
 
-
     Path pathToFIle = HOME_DIRECTORY.resolve(ARCHIVE_NAME);
-
 
     public void setPathToFIle(Path pathToFIle) {
         this.pathToFIle = pathToFIle;
+
     }
 
-    public static void loadFromFile(File file, TaskManager taskManager) throws ManagerSaveException {
-        InMemoryHistoryManager inMemoryHistoryManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
-        taskManager.getSchedule().clear();
+    @Override
+    protected Map<ScheduleDateTimeCell, Boolean> getSchedule() {
+        return super.getSchedule();
+    }
+
+    public void loadFromFile(File file, InMemoryTaskManager inmemoryTaskManagerToLoad) throws ManagerSaveException {
+        InMemoryHistoryManager inMemoryHistoryManagerToLoad = (InMemoryHistoryManager) inmemoryTaskManagerToLoad.getHistoryManager();
+        inmemoryTaskManagerToLoad.getSchedule().clear();
 
         try {
             String content = Files.readString(file.toPath());
@@ -50,14 +52,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         maxId = (task != null ? task.getId() : null)
                                 != null ? task.getId() > maxId ? task.getId() : maxId : maxId;
                         if (task instanceof SubTask) {
-                            taskManager.createSubTask((SubTask) task);
+                            inmemoryTaskManagerToLoad.createSubTask((SubTask) task);
                             System.out.println("subTask id: " + task.getId() + ": loaded");
                         } else if (task instanceof EpicTask) {
-                            taskManager.createEpicTask((EpicTask) task);
+                            inmemoryTaskManagerToLoad.createEpicTask((EpicTask) task);
                             System.out.println("epictask id: " + task.getId() + ": loaded");
 
                         } else {
-                            taskManager.createTask(task);
+                            inmemoryTaskManagerToLoad.createTask(task);
                             System.out.println("task id: " + (task != null ? task.getId() : null) + ": loaded");
 
                         }
@@ -67,13 +69,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 } else {
                     List<Integer> history = historyFromString(str);
                     history.forEach(id -> {
-                        Task task = getTaskFromId(id, taskManager);
-                        inMemoryHistoryManager.add(task);
+                        Task task = getTaskFromId(id, inmemoryTaskManagerToLoad);
+                        inMemoryHistoryManagerToLoad.add(task);
                     });
                 }
 
             }
-            taskManager.setInitialId(maxId);
+            setInitialId(maxId);
 
         } catch (IOException exception) {
             throw new ManagerSaveException(exception.getMessage());
@@ -183,33 +185,39 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void deleteAllTasks() {
+    public boolean deleteAllTasks() {
         super.deleteAllTasks();
         try {
             save();
+            return true;
         } catch (ManagerSaveException exception) {
             System.out.println(exception.getMessage());
         }
+        return false;
     }
 
     @Override
-    public void deleteAllSubTasks() {
+    public boolean deleteAllSubTasks() {
         super.deleteAllSubTasks();
         try {
             save();
+            return true;
         } catch (ManagerSaveException exception) {
             System.out.println(exception.getMessage());
         }
+        return false;
     }
 
     @Override
-    public void deleteAllEpicTasks() {
+    public boolean deleteAllEpicTasks() {
         super.deleteAllEpicTasks();
         try {
             save();
+            return true;
         } catch (ManagerSaveException exception) {
             System.out.println(exception.getMessage());
         }
+        return false;
     }
 
     @Override
@@ -246,32 +254,39 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateEpicTask(EpicTask epicTask) {
+    public boolean updateEpicTask(EpicTask epicTask) {
         super.updateEpicTask(epicTask);
         try {
             save();
+            return true;
         } catch (ManagerSaveException exception) {
             System.out.println(exception.getMessage());
         }
+        return false;
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) {
+    public boolean updateSubTask(SubTask subTask) {
         super.updateSubTask(subTask);
         try {
             save();
+            return true;
         } catch (ManagerSaveException exception) {
             System.out.println(exception.getMessage());
         }
+        return false;
     }
 
     @Override
-    public void updateTask(Task task) {
+    public boolean updateTask(Task task) {
         super.updateTask(task);
         try {
+
             save();
+            return true;
         } catch (ManagerSaveException exception) {
             System.out.println(exception.getMessage());
+            return false;
         }
     }
 

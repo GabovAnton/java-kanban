@@ -13,14 +13,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class HistoryManagerTest {
-    private static TaskManager taskManager;
+    private final static TaskManager taskManager = new InMemoryTaskManager();
     private static InMemoryHistoryManager inMemoryHistoryManager;
     private static Task task;
     private static LocalDateTime startSchedulePeriod;
 
     @BeforeAll
     public static void setupEnvironment() {
-        taskManager = Managers.getDefault();
         startSchedulePeriod = LocalDateTime.of(2021, 8, 11, 14, 15);
         taskManager.fillTaskTimeSlots(startSchedulePeriod, Period.ofYears(1), Period.ofYears(1));
         inMemoryHistoryManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
@@ -75,7 +74,6 @@ public class HistoryManagerTest {
         taskManager.getStandaloneTask(100);
         assertTrue(inMemoryHistoryManager.getHistory().contains(task));
     }
-
 
     @Test
     void TestHistoryAfterViewingTwoTask() {

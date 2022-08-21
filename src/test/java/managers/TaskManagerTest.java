@@ -394,7 +394,11 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.getStandaloneTask(taskId2);
         final List<Task> tasks = taskManager.getTasks();
         assertEquals(2, tasks.size(), "Неверное количество задачв массиве");
-        assertNotNull(taskManager.getSchedule(), "Массив задач в расписании пуст");
+        if (taskManager instanceof InMemoryTaskManager) {
+            assertNotNull(((InMemoryTaskManager) taskManager).getSchedule(), "Массив задач в расписании пуст");
+        } else {
+            fail("класс Менеджера задач не определен");
+        }
 
     }
 
@@ -789,7 +793,12 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.fillTaskTimeSlots(startSchedulePeriod, Period.ofYears(0),
                 Period.ofDays(1));
 
-        assertEquals(24 * 4 + 1, taskManager.getSchedule().size(), "неверный размер массива schedule");
+        if (taskManager instanceof InMemoryTaskManager) {
+            assertEquals(24 * 4 + 1, ((InMemoryTaskManager)taskManager).getSchedule().size(),
+                    "неверный размер массива schedule");
+        } else {
+            fail("класс Менеджера задач не определен");
+        }
     }
 
     @Test
@@ -820,8 +829,13 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void testGetSchedule() {
-        assertTrue(taskManager.getSchedule().size() > 0,
-                "расписание пустое");
+        if (taskManager instanceof InMemoryTaskManager) {
+            assertTrue(((InMemoryTaskManager)taskManager).getSchedule().size() > 0,
+                    "расписание пустое");
+        } else {
+            fail("класс Менеджера задач не определен");
+        }
+
     }
 
     @Test

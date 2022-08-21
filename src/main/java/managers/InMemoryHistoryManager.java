@@ -4,11 +4,25 @@ import tasks.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author A.Gabov
  */
 public class InMemoryHistoryManager implements HistoryManager {
+    public HashMap<Integer, Node> getNodes() {
+        return nodes;
+    }
+
+    public Node getHead() {
+        return head;
+    }
+
+    public Node getLast() {
+        return last;
+    }
+
     private final HashMap<Integer, Node> nodes = new HashMap<>();
     private Node head;
     private Node last;
@@ -77,7 +91,14 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public ArrayList<Task> getHistory() {
         ArrayList<Task> tasks = new ArrayList<>();
-        nodes.forEach((key, value) -> tasks.add(value.item));
+        Node element = head;
+        if (element != null) {
+            tasks.add(element.item);
+            while (element.next != null) {
+                tasks.add(element.next.item);
+                element = element.next;
+            }
+        }
 
         return tasks;
     }
@@ -99,6 +120,23 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     private static class Node {
         private Node next;
+
+        public Node(Node deserialize) {
+        }
+
+
+        public Node getNext() {
+            return next;
+        }
+
+        public Node getPrev() {
+            return prev;
+        }
+
+        public Task getItem() {
+            return item;
+        }
+
         private Node prev;
         private Task item;
 

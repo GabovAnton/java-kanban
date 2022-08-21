@@ -83,10 +83,8 @@ public class FileBackedTaskManagerTest extends TaskManagerTest {
 
 
             InMemoryTaskManager testInmemoryTaskManager = new InMemoryTaskManager();
-            assertDoesNotThrow(() -> FileBackedTasksManager.loadFromFile(HOME_DIRECTORY.resolve(ARCHIVE_NAME).toFile(),
+            assertDoesNotThrow(() -> fileBackedTasksManager.loadFromFile(HOME_DIRECTORY.resolve(ARCHIVE_NAME).toFile(),
                     testInmemoryTaskManager));
-
-
 
     }
 
@@ -96,7 +94,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest {
             saveFileShouldNoteReturnError();
             IllegalArgumentException exception =
                     assertThrows(IllegalArgumentException.class, () ->
-                            FileBackedTasksManager.
+                            fileBackedTasksManager.
                                     loadFromFile(HOME_DIRECTORY.resolve(ARCHIVE_NAME).toFile(), fileBackedTasksManager));
 
             assertEquals(IllegalArgumentException.class, exception.getClass());
