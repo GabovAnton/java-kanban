@@ -15,14 +15,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         return nodes;
     }
 
-    public Node getHead() {
-        return head;
-    }
-
-    public Node getLast() {
-        return last;
-    }
-
     private final HashMap<Integer, Node> nodes = new HashMap<>();
     private Node head;
     private Node last;

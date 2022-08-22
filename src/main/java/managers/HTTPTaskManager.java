@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class HTTPTaskManager extends FileBackedTasksManager {
     public static KVTaskClient kvTaskClient;
@@ -25,41 +26,34 @@ public class HTTPTaskManager extends FileBackedTasksManager {
 
     @Override
     public Task getStandaloneTask(Integer id) {
-        Optional<Task> standaloneTask = Optional.ofNullable(super.getStandaloneTask(id));
-        if (standaloneTask.isPresent()) {
-            SaveHistory();
-            return standaloneTask.get();
-
-        } else {
-            return null;
-        }
+        return Optional.ofNullable(super.getStandaloneTask(id)).map(x -> {
+                    saveHistory();
+                    return x;
+                })
+                .orElse(null);
     }
 
     @Override
     public SubTask getSubtask(Integer id) {
-        Optional<SubTask> subtask = Optional.ofNullable(super.getSubtask(id));
-        if (subtask.isPresent()) {
-            SaveHistory();
-            return subtask.get();
 
-        } else {
-            return null;
-        }
+        return Optional.ofNullable(super.getSubtask(id)).map(x -> {
+                    saveHistory();
+                    return x;
+                })
+                .orElse(null);
     }
 
     @Override
     public EpicTask getEpic(Integer id) {
-        Optional<EpicTask> epic = Optional.ofNullable(super.getEpic(id));
-        if (epic.isPresent()) {
-            SaveHistory();
-            return epic.get();
 
-        } else {
-            return null;
-        }
+        return Optional.ofNullable(super.getEpic(id)).map(x -> {
+                    saveHistory();
+                    return x;
+                })
+                .orElse(null);
     }
 
-    private void SaveHistory() {
+    private Consumer<? super Task> saveHistory() {
         try {
             kvTaskClient.put("history", historyToJson());
         } catch (IOException e) {
@@ -67,6 +61,7 @@ public class HTTPTaskManager extends FileBackedTasksManager {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        return null;
     }
 
     @Override
